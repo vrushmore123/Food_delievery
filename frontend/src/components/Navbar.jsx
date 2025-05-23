@@ -143,17 +143,15 @@ const Navbar = ({
                 onClick={onCartClick}
                 onMouseEnter={() => setHoveredButton('cart')}
                 onMouseLeave={() => setHoveredButton(null)}
-                className="relative group flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:scale-110 hover:-rotate-3 shadow-lg hover:shadow-xl"
+                className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 transition-colors duration-300"
               >
-                <div className="absolute -inset-2 bg-gradient-to-r from-orange-400 to-red-400 rounded-full opacity-0 group-hover:opacity-30 blur transition duration-500"></div>
-                <svg className="w-7 h-7 text-white relative z-10 transform group-hover:scale-110 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 
                 {cartCount > 0 && (
-                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold rounded-full h-7 w-7 flex items-center justify-center shadow-lg transform animate-bounce">
-                    <span className="relative z-10">{cartCount}</span>
-                    <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-75"></div>
+                  <div className="absolute -top-2 -right-2 bg-red-500 text-white text-sm font-bold rounded-full h-7 w-7 flex items-center justify-center">
+                    {cartCount}
                   </div>
                 )}
                 
