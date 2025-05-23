@@ -1,0 +1,22 @@
+export const foodImages = [
+  'https://source.unsplash.com/random/300x200/?pizza',
+  'https://source.unsplash.com/random/300x200/?burger',
+  'https://source.unsplash.com/random/300x200/?pasta',
+  'https://source.unsplash.com/random/300x200/?salad',
+  'https://source.unsplash.com/random/300x200/?sushi',
+  'https://source.unsplash.com/random/300x200/?steak',
+  'https://source.unsplash.com/random/300x200/?sandwich',
+  'https://source.unsplash.com/random/300x200/?taco',
+  'https://source.unsplash.com/random/300x200/?burrito',
+  'https://source.unsplash.com/random/300x200/?ramen',
+  'https://source.unsplash.com/random/300x200/?curry',
+  'https://source.unsplash.com/random/300x200/?fried-chicken',
+  'https://source.unsplash.com/random/300x200/?soup',
+  'https://source.unsplash.com/random/300x200/?dessert',
+  'https://source.unsplash.com/random/300x200/?ice-cream',
+  'https://source.unsplash.com/random/300x200/?cake',
+  'https://source.unsplash.com/random/300x200/?smoothie',
+  'https://source.unsplash.com/random/300x200/?coffee',
+  'https://source.unsplash.com/random/300x200/?seafood',
+  'https://source.unsplash.com/random/300x200/?vegetables'
+];
