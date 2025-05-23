@@ -1,59 +1,82 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const FoodCard = ({ food, onAddToCart, compact = false }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
     onAddToCart(food, quantity);
     setQuantity(1);
   };
 
+  const toggleFlip = (e) => {
+    // Don't flip if clicking on quantity controls or add button
+    if (e.target.closest('.no-flip')) return;
+    setIsFlipped(!isFlipped);
+  };
+
   if (compact) {
     return (
-      <div className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow h-full flex flex-col">
-        <img 
-          src={food.imageUrl} 
-          alt={food.name} 
-          className="w-full h-40 object-cover"
-        />
-        <div className="p-4 flex-grow">
-          <h3 className="font-semibold text-lg mb-1">{food.name}</h3>
-          <p className="text-gray-600 text-sm mb-2">{food.restaurant}</p>
-          <div className="flex justify-between items-center mt-2">
-            <span className="font-bold">{food.price} DKK</span>
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center border rounded-md">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setQuantity(Math.max(1, quantity - 1));
-                  }}
-                  className="px-2 py-1 text-gray-600"
-                >
-                  -
-                </button>
-                <span className="px-2">{quantity}</span>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setQuantity(quantity + 1);
-                  }}
-                  className="px-2 py-1 text-gray-600"
-                >
-                  +
-                </button>
+      <div className="border rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800 flex flex-col h-full">
+        {/* Card Header */}
+        <div className="relative">
+          <img 
+            src={food.imageUrl} 
+            alt={food.name} 
+            className="w-full h-40 object-cover"
+          />
+          <div className="absolute top-2 right-2">
+            <span className={`px-2 py-1 text-xs rounded-full ${
+              food.isVegetarian 
+                ? 'bg-green-100 text-green-800 dark:bg-green-900/90 dark:text-green-100' 
+                : 'bg-red-100 text-red-800 dark:bg-red-900/90 dark:text-red-100'
+            }`}>
+              {food.isVegetarian ? '🌱 Veg' : '🍖 Non-Veg'}
+            </span>
+          </div>
+        </div>
+
+        {/* Card Content */}
+        <div className="p-4 flex flex-col flex-grow">
+          <h3 className="font-semibold text-lg mb-1 dark:text-white">{food.name}</h3>
+          <p className="text-gray-600 dark:text-gray-300 text-sm">{food.restaurant}</p>
+          
+          {/* Price and Controls - Fixed at bottom */}
+          <div className="mt-auto pt-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-bold text-lg dark:text-white">{food.price} DKK</span>
+              <div className="flex items-center space-x-2 no-flip">
+                <div className="flex items-center border rounded-md dark:border-gray-600">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setQuantity(Math.max(1, quantity - 1));
+                    }}
+                    className="px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    −
+                  </button>
+                  <span className="px-3 dark:text-gray-200">{quantity}</span>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setQuantity(quantity + 1);
+                    }}
+                    className="px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAddToCart();
-                }}
-                className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700"
-              >
-                Add
-              </button>
             </div>
+            <button 
+              onClick={handleAddToCart}
+              className="w-full py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+            >
+              Add to Cart
+            </button>
           </div>
         </div>
       </div>
@@ -61,82 +84,115 @@ const FoodCard = ({ food, onAddToCart, compact = false }) => {
   }
 
   return (
-    <div 
-      className="relative h-96 w-full rounded-lg overflow-hidden shadow-md cursor-pointer transition-all duration-300 hover:shadow-lg"
-      onMouseEnter={() => setIsFlipped(true)}
-      onMouseLeave={() => setIsFlipped(false)}
-    >
-      {/* Front of Card */}
-      <div className={`absolute inset-0 transition-opacity duration-300 ${isFlipped ? 'opacity-0' : 'opacity-100'}`}>
-        <img src={food.imageUrl} alt={food.name} className="w-full h-full object-cover" />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-          <h3 className="text-white font-semibold text-xl">{food.name}</h3>
-          <p className="text-gray-200 text-sm">{food.restaurant}</p>
-          <div className="flex justify-between items-center mt-3">
-            <span className="text-white font-bold text-lg">{food.price} DKK</span>
-            <span className={`px-3 py-1 text-xs rounded-full ${food.isVegetarian ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-              {food.isVegetarian ? 'Veg' : 'Non-Veg'}
-            </span>
-          </div>
-        </div>
-      </div>
-      
-      {/* Back of Card */}
-      <div className={`absolute inset-0 bg-white p-6 transition-opacity duration-300 overflow-y-auto ${isFlipped ? 'opacity-100' : 'opacity-0'}`}>
-        <h3 className="font-semibold text-xl mb-3">{food.name}</h3>
-        <p className="text-gray-600 mb-4">{food.description}</p>
-        
-        <div className="mb-4">
-          <h4 className="text-sm font-semibold text-gray-500 mb-2">DIETARY INFORMATION</h4>
-          <div className="flex flex-wrap gap-2">
-            {food.tags.map(tag => (
-              <span key={tag} className="px-3 py-1 text-xs bg-gray-100 rounded-full">
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-        
-        {food.comboPrice && (
-          <div className="mb-4 p-3 bg-yellow-50 rounded border border-yellow-100">
-            <p className="text-sm font-semibold text-yellow-800">{food.comboDescription}</p>
-            <p className="font-bold">{food.comboPrice} DKK</p>
-          </div>
-        )}
-        
-        <div className="flex items-center justify-between mt-6">
-          <div className="flex items-center border rounded-md">
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                setQuantity(Math.max(1, quantity - 1));
-              }}
-              className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-            >
-              -
-            </button>
-            <span className="px-4">{quantity}</span>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                setQuantity(quantity + 1);
-              }}
-              className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-            >
-              +
-            </button>
-          </div>
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAddToCart();
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+    <div className="w-full max-w-[300px] mx-auto">
+      <AnimatePresence mode="wait">
+        {!isFlipped ? (
+          <motion.div 
+            key="front"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="relative h-[400px] w-full rounded-xl overflow-hidden shadow-lg cursor-pointer bg-white dark:bg-gray-800"
+            onClick={toggleFlip}
           >
-            Add to Cart
-          </button>
-        </div>
-      </div>
+            <img 
+              src={food.imageUrl} 
+              alt={food.name} 
+              className="w-full h-48 object-cover"
+            />
+            <div className="p-4 flex flex-col justify-between h-[calc(100%-192px)]">
+              <div>
+                <h3 className="font-semibold text-lg dark:text-white">{food.name}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">{food.restaurant}</p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                    food.isVegetarian 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' 
+                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100'
+                  }`}>
+                    {food.isVegetarian ? '🌱 Veg' : '🍖 Non-Veg'}
+                  </span>
+                  {food.tags.slice(0, 2).map(tag => (
+                    <span key={tag} className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-bold text-lg dark:text-white">{food.price} DKK</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center border rounded-md dark:border-gray-600">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQuantity(Math.max(1, quantity - 1));
+                        }}
+                        className="px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        −
+                      </button>
+                      <span className="px-3 dark:text-gray-200">{quantity}</span>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQuantity(quantity + 1);
+                        }}
+                        className="px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+                >
+                  Add to Cart • {food.price * quantity} DKK
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="back"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="relative h-[400px] w-full rounded-xl overflow-hidden shadow-lg cursor-pointer bg-white dark:bg-gray-800"
+            onClick={toggleFlip}
+          >
+            <div className="p-4 h-full flex flex-col">
+              <h3 className="font-semibold text-xl mb-2 dark:text-white">{food.name}</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm">{food.description}</p>
+              
+              {food.comboPrice && (
+                <div className="mb-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                  <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
+                    🎉 {food.comboDescription}
+                  </p>
+                  <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                    {food.comboPrice} DKK
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-auto">
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+                >
+                  Add to Cart • {food.price * quantity} DKK
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import ClusterCard from '../components/ClusterCard';
 import FoodCard from '../components/foodcart';
@@ -91,7 +92,7 @@ const RestaurantPage = ({ location, setCluster, cart, setCart, orderHistory, use
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       <Navbar 
         location={location} 
         cluster={selectedCluster} 
@@ -103,10 +104,26 @@ const RestaurantPage = ({ location, setCluster, cart, setCart, orderHistory, use
         onSearch={setSearchQuery}
       />
       
-      <div className="container mx-auto px-4 py-8">
+      {/* Decorative Background Elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-2000"></div>
+      </div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="container mx-auto px-4 py-8 relative z-10"
+      >
         {!selectedCluster ? (
-          <div className="flex flex-col items-center">
-            <h2 className="text-xl font-semibold mb-6">Select a cluster in {location}</h2>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center"
+          >
+            <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+              Select Your Delivery Zone in {location}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
               {clusters.map(cluster => (
                 <ClusterCard 
@@ -116,13 +133,58 @@ const RestaurantPage = ({ location, setCluster, cart, setCart, orderHistory, use
                 />
               ))}
             </div>
-          </div>
+          </motion.div>
         ) : (
-          <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-8"
+          >
+            {/* Search and Filters Section */}
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg">
+              <div className="flex flex-wrap gap-4 items-center justify-between">
+                <div className="flex items-center space-x-2 flex-grow max-w-md">
+                  <input
+                    type="text"
+                    placeholder="Search dishes or restaurants..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-gray-700/50 border border-orange-100 dark:border-gray-600 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {['veg', 'nonVeg', 'vegan'].map(filter => (
+                    <motion.button
+                      key={filter}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => toggleFilter(filter)}
+                      className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                        filters[filter]
+                          ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
+                          : 'bg-white/50 dark:bg-gray-700/50 hover:bg-orange-50 dark:hover:bg-gray-600/50'
+                      }`}
+                    >
+                      {filter === 'veg' && '🌱 '}
+                      {filter === 'nonVeg' && '🍖 '}
+                      {filter === 'vegan' && '🥬 '}
+                      {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Recommended Section */}
             {recommendedItems.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">Recommended For You</h2>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                    Recommended For You
+                  </h2>
+                  <div className="h-0.5 flex-grow bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-full"></div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {recommendedItems.map(item => (
                     <FoodCard 
                       key={item.id}
@@ -134,50 +196,45 @@ const RestaurantPage = ({ location, setCluster, cart, setCart, orderHistory, use
                 </div>
               </div>
             )}
-            
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">Restaurants in {selectedCluster.name}</h2>
-              <button 
-                onClick={() => setShowCalendarOrder(true)}
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
-              >
-                Order for Week/Month
-              </button>
+
+            {/* Main Menu Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                    Available Menu
+                  </h2>
+                  <div className="h-0.5 w-24 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-full"></div>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowCalendarOrder(true)}
+                  className="px-6 py-2.5 rounded-xl font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg hover:shadow-green-500/25 transition-all duration-300"
+                >
+                  🗓️ Plan Weekly Order
+                </motion.button>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredFoodItems.map(food => (
+                  <motion.div
+                    key={food.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <FoodCard 
+                      food={food}
+                      onAddToCart={handleAddToCart}
+                    />
+                  </motion.div>
+                ))}
+              </div>
             </div>
-            
-            <div className="flex flex-wrap items-center gap-3 mb-6">
-              <button 
-                onClick={() => toggleFilter('veg')}
-                className={`px-3 py-1 rounded-full text-sm ${filters.veg ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-gray-100'}`}
-              >
-                Vegetarian
-              </button>
-              <button 
-                onClick={() => toggleFilter('nonVeg')}
-                className={`px-3 py-1 rounded-full text-sm ${filters.nonVeg ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-gray-100'}`}
-              >
-                Non-Vegetarian
-              </button>
-              <button 
-                onClick={() => toggleFilter('vegan')}
-                className={`px-3 py-1 rounded-full text-sm ${filters.vegan ? 'bg-purple-100 text-purple-800 border border-purple-300' : 'bg-gray-100'}`}
-              >
-                Vegan
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-              {filteredFoodItems.map(food => (
-                <FoodCard 
-                  key={food.id}
-                  food={food}
-                  onAddToCart={handleAddToCart}
-                />
-              ))}
-            </div>
-          </>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
       
       {showCart && (
         <CartModal 
