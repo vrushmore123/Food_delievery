@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import RestaurantPage from './pages/RestaurantPage';
-import PaymentPage from './pages/PaymentPage';
+import PaymentPage from './pages/Paymentpage';
 
 function App() {
   const [location, setLocation] = useState(null);
