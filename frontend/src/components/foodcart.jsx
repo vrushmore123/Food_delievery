@@ -19,35 +19,30 @@ const FoodCard = ({ food, onAddToCart, compact = false }) => {
 
   if (compact) {
     return (
-      <div className="border rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800 flex flex-col h-full">
-        {/* Card Header */}
+      <div className="relative group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="absolute inset-0 bg-gradient-to-r from-orange-400/0 via-orange-400/5 to-red-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        
         <div className="relative">
-          <img 
-            src={food.imageUrl} 
-            alt={food.name} 
-            className="w-full h-40 object-cover"
-          />
+          <img src={food.imageUrl} alt={food.name} className="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-105" />
           <div className="absolute top-2 right-2">
-            <span className={`px-2 py-1 text-xs rounded-full ${
+            <span className={`px-2 py-1 text-xs font-medium rounded-full backdrop-blur-sm ${
               food.isVegetarian 
-                ? 'bg-green-100 text-green-800 dark:bg-green-900/90 dark:text-green-100' 
-                : 'bg-red-100 text-red-800 dark:bg-red-900/90 dark:text-red-100'
+                ? 'bg-green-100/90 text-green-800' 
+                : 'bg-red-100/90 text-red-800'
             }`}>
               {food.isVegetarian ? '🌱 Veg' : '🍖 Non-Veg'}
             </span>
           </div>
         </div>
 
-        {/* Card Content */}
-        <div className="p-4 flex flex-col flex-grow">
-          <h3 className="font-semibold text-lg mb-1 dark:text-white">{food.name}</h3>
+        <div className="p-4 relative z-10">
+          <h3 className="font-semibold text-lg mb-1 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">{food.name}</h3>
           <p className="text-gray-600 dark:text-gray-300 text-sm">{food.restaurant}</p>
           
-          {/* Price and Controls - Fixed at bottom */}
-          <div className="mt-auto pt-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-bold text-lg dark:text-white">{food.price} DKK</span>
-              <div className="flex items-center space-x-2 no-flip">
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-bold text-lg">{food.price} DKK</span>
+              <div className="flex items-center space-x-2">
                 <div className="flex items-center border rounded-md dark:border-gray-600">
                   <button 
                     onClick={(e) => {
@@ -73,7 +68,7 @@ const FoodCard = ({ food, onAddToCart, compact = false }) => {
             </div>
             <button 
               onClick={handleAddToCart}
-              className="w-full py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+              className="w-full py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg transition-all duration-300 transform hover:from-orange-600 hover:to-red-600 hover:scale-[1.02] hover:shadow-lg font-medium"
             >
               Add to Cart
             </button>

@@ -126,161 +126,178 @@ const CalendarOrder = ({ foodItems, onClose, onAddToCart, cart, onProceedToPay }
   const total = totalPrice + deliveryFee;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="flex justify-between items-center border-b p-4">
-          <h2 className="text-xl font-semibold">Plan Your {duration === 'week' ? 'Weekly' : 'Monthly'} Meals</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        
-        <div className="p-4 flex-1 overflow-hidden flex flex-col">
-          <div className="flex space-x-4 mb-6">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-7xl h-[90vh] flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="p-6 border-b border-orange-100 dark:border-gray-700 bg-gradient-to-r from-orange-50 to-red-50 dark:from-gray-800/50 dark:to-gray-800">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+              Plan Your {duration === 'week' ? 'Weekly' : 'Monthly'} Meals
+            </h2>
             <button 
-              onClick={() => setDuration('week')}
-              className={`px-4 py-2 rounded-md ${duration === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+              onClick={onClose}
+              className="p-2 hover:bg-white/80 rounded-full transition-colors"
             >
-              Order for Week
-            </button>
-            <button 
-              onClick={() => setDuration('month')}
-              className={`px-4 py-2 rounded-md ${duration === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-            >
-              Order for Month
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-hidden">
-            <div className="overflow-hidden flex flex-col">
-              <h3 className="font-medium mb-4">Available Meals</h3>
-              <div 
-                className="grid grid-cols-2 gap-4 overflow-y-auto p-2 flex-1"
-                onDragOver={handleDragOver}
+        </div>
+
+        {/* Duration Tabs */}
+        <div className="px-6 pt-6">
+          <div className="flex space-x-4 mb-6">
+            {['week', 'month'].map((d) => (
+              <button
+                key={d}
+                onClick={() => setDuration(d)}
+                className={`px-6 py-2.5 rounded-full font-semibold transition-all duration-300 ${
+                  duration === d 
+                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg hover:shadow-orange-500/25'
+                    : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200'
+                }`}
               >
-                {foodItemsWithImages.map(food => (
-                  <div 
-                    key={food.id}
-                    draggable
-                    onDragStart={() => handleDragStart(food.id)}
-                    className="border rounded-md p-3 cursor-move hover:bg-gray-50 flex items-center"
-                  >
-                    <img src={food.imageUrl} alt={food.name} className="w-12 h-12 object-cover rounded mr-3" />
-                    <div>
-                      <h4 className="text-sm font-medium">{food.name}</h4>
-                      <p className="text-xs text-gray-600">{food.price} DKK</p>
+                {d === 'week' ? 'Weekly' : 'Monthly'} Plan
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Content - Scrollable */}
+        <div className="flex-1 px-6 overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+            {/* Available Meals */}
+            <div className="flex flex-col bg-white/50 dark:bg-gray-800/50 rounded-xl p-4">
+              <h3 className="font-semibold text-lg mb-4 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                Available Meals
+              </h3>
+              <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-2">
+                  {foodItemsWithImages.map(food => (
+                    <div 
+                      key={food.id}
+                      draggable
+                      onDragStart={() => handleDragStart(food.id)}
+                      className="group bg-white dark:bg-gray-700 rounded-xl p-3 cursor-move hover:shadow-lg transition-all duration-300 border border-orange-100/50 dark:border-gray-600"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <img src={food.imageUrl} alt={food.name} className="w-16 h-16 object-cover rounded-lg" />
+                        <div>
+                          <h4 className="font-medium text-gray-800 dark:text-white group-hover:text-orange-500 transition-colors">
+                            {food.name}
+                          </h4>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{food.restaurant}</p>
+                          <p className="text-orange-600 dark:text-orange-400 font-semibold mt-1">
+                            {food.price} DKK
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-            
-            <div className="overflow-hidden flex flex-col">
-              <h3 className="font-medium mb-4">Your Meal Plan</h3>
-              <div className="grid grid-cols-7 gap-2 mb-4 overflow-y-auto flex-1">
-                {generateDates().map(date => (
-                  <div 
-                    key={date.toDateString()}
-                    onDrop={() => handleDrop(date)}
-                    onDragOver={handleDragOver}
-                    className={`p-2 text-center rounded-md min-h-24 ${selectedFoods[date.toDateString()] ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}`}
-                  >
-                    <div className="text-xs font-medium">
-                      {date.toLocaleDateString('en-US', { weekday: 'short' })}
-                    </div>
-                    <div className="text-sm mb-1">
-                      {date.getDate()}
-                    </div>
-                    
-                    {selectedFoods[date.toDateString()] && (
-                      <div className="relative">
-                        <div className="bg-white p-1 rounded border border-gray-200">
-                          <div className="flex items-center">
-                            <img 
-                              src={foodItemsWithImages.find(f => f.id === selectedFoods[date.toDateString()])?.imageUrl} 
-                              alt="Food" 
-                              className="w-6 h-6 object-cover rounded mr-1" 
-                            />
-                            <span className="text-xs truncate">
-                              {foodItemsWithImages.find(f => f.id === selectedFoods[date.toDateString()])?.name}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center mt-1">
-                            <button 
-                              onClick={() => decreaseQuantity(date)}
-                              className="text-xs bg-gray-200 rounded-full w-4 h-4 flex items-center justify-center"
-                            >
-                              -
-                            </button>
-                            <span className="text-xs">
-                              {quantities[date.toDateString()] || 1}
-                            </span>
-                            <button 
-                              onClick={() => increaseQuantity(date)}
-                              className="text-xs bg-gray-200 rounded-full w-4 h-4 flex items-center justify-center"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                        <button 
-                          onClick={() => removeFoodFromDate(date)}
-                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
-                        >
-                          ×
-                        </button>
+
+            {/* Calendar Grid */}
+            <div className="flex flex-col bg-white/50 dark:bg-gray-800/50 rounded-xl p-4">
+              <h3 className="font-semibold text-lg mb-4 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                Your Meal Plan
+              </h3>
+              <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <div className="grid grid-cols-7 gap-3">
+                  {generateDates().map(date => (
+                    <div 
+                      key={date.toDateString()}
+                      onDrop={() => handleDrop(date)}
+                      onDragOver={handleDragOver}
+                      className={`p-2 text-center rounded-md min-h-24 ${selectedFoods[date.toDateString()] ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}`}
+                    >
+                      <div className="text-xs font-medium">
+                        {date.toLocaleDateString('en-US', { weekday: 'short' })}
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              <div className="bg-blue-50 p-3 rounded-md mb-4">
-                <h4 className="font-medium text-sm mb-2">How it works:</h4>
-                <ol className="list-decimal list-inside text-sm space-y-1">
-                  <li>Drag and drop meals to your desired dates</li>
-                  <li>Adjust quantities using + and - buttons</li>
-                  <li>Remove meals by clicking the × button</li>
-                  <li>Click "Add to Cart" when you're ready</li>
-                </ol>
-              </div>
-              
-              <div className="bg-gray-50 p-3 rounded-md mb-4">
-                <div className="flex justify-between mb-1">
-                  <span>Subtotal:</span>
-                  <span>{totalPrice} DKK</span>
+                      <div className="text-sm mb-1">
+                        {date.getDate()}
+                      </div>
+                      
+                      {selectedFoods[date.toDateString()] && (
+                        <div className="relative">
+                          <div className="bg-white p-1 rounded border border-gray-200">
+                            <div className="flex items-center">
+                              <img 
+                                src={foodItemsWithImages.find(f => f.id === selectedFoods[date.toDateString()])?.imageUrl} 
+                                alt="Food" 
+                                className="w-6 h-6 object-cover rounded mr-1" 
+                              />
+                              <span className="text-xs truncate">
+                                {foodItemsWithImages.find(f => f.id === selectedFoods[date.toDateString()])?.name}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center mt-1">
+                              <button 
+                                onClick={() => decreaseQuantity(date)}
+                                className="text-xs bg-gray-200 rounded-full w-4 h-4 flex items-center justify-center"
+                              >
+                                -
+                              </button>
+                              <span className="text-xs">
+                                {quantities[date.toDateString()] || 1}
+                              </span>
+                              <button 
+                                onClick={() => increaseQuantity(date)}
+                                className="text-xs bg-gray-200 rounded-full w-4 h-4 flex items-center justify-center"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                          <button 
+                            onClick={() => removeFoodFromDate(date)}
+                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                <div className="flex justify-between mb-1">
-                  <span>Delivery fee:</span>
-                  <span>{deliveryFee} DKK</span>
-                </div>
-                <div className="flex justify-between font-medium">
-                  <span>Total:</span>
-                  <span>{total} DKK</span>
-                </div>
               </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <button 
-                  onClick={handleAddSelectedToCart}
-                  disabled={totalItems === 0}
-                  className={`px-4 py-2 rounded-md ${totalItems > 0 ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
-                >
-                  Add to Cart ({totalItems})
-                </button>
-                <button 
-                  onClick={() => {
-                    handleAddSelectedToCart();
-                    onProceedToPay();
-                  }}
-                  disabled={totalItems === 0}
-                  className={`px-4 py-2 rounded-md ${totalItems > 0 ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
-                >
-                  Proceed to Pay ({total} DKK)
-                </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-orange-100 dark:border-gray-700 bg-gradient-to-r from-orange-50 to-red-50 dark:from-gray-800/50 dark:to-gray-800">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 max-w-sm">
+              <div className="flex justify-between mb-1">
+                <span className="text-gray-600 dark:text-gray-300">Total Items:</span>
+                <span className="font-semibold">{totalItems}</span>
               </div>
+              <div className="flex justify-between mb-1">
+                <span className="text-gray-600 dark:text-gray-300">Total Amount:</span>
+                <span className="font-semibold">{total} DKK</span>
+              </div>
+            </div>
+            <div className="flex space-x-4">
+              <button 
+                onClick={handleAddSelectedToCart}
+                disabled={totalItems === 0}
+                className="px-6 py-2.5 rounded-full font-semibold bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Add to Cart ({totalItems})
+              </button>
+              <button 
+                onClick={() => {
+                  handleAddSelectedToCart();
+                  onProceedToPay();
+                }}
+                disabled={totalItems === 0}
+                className="px-6 py-2.5 rounded-full font-semibold bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Proceed to Pay ({total} DKK)
+              </button>
             </div>
           </div>
         </div>
