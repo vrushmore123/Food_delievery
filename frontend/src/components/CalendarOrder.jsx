@@ -13,48 +13,78 @@ const CalendarOrder = ({ foodItems, onClose, onAddToCart, onProceedToPay }) => {
     });
   }, [duration]);
 
-  const randomImgs = [
-    'https://source.unsplash.com/featured/?food',
-    'https://source.unsplash.com/featured/?meal',
-    'https://source.unsplash.com/featured/?dish',
-    'https://source.unsplash.com/featured/?cuisine',
-    'https://source.unsplash.com/featured/?restaurant',
-  ];
+  // helper to resolve local vs remote URLs
+  const resolveImage = (url) =>
+    url.startsWith('http')
+      ? url
+      : `${process.env.PUBLIC_URL}/${url}`;
+
+  // build rotating Unsplash URLs from env
+  const randomImgs = Array.from({ length: 5 }, (_, i) =>
+    `${process.env.REACT_APP_IMAGE_BASE_URL}/?food&sig=${i}`
+  );
+
+  // build items with proper imageUrl
   const items = useMemo(() =>
-    foodItems.map((f,i) => ({
-      ...f, 
-      imageUrl: f.imageUrl || randomImgs[i % randomImgs.length]
+    foodItems.map((f, i) => ({
+      ...f,
+      imageUrl: f.imageUrl
+        ? resolveImage(f.imageUrl)
+        : foodImages[f.id]
+          ? resolveImage(foodImages[f.id])
+          : randomImgs[i % randomImgs.length]
     }))
   , [foodItems]);
 
-  const [selectedPlan, setSelectedPlan] = useState({}); // { dateStr: { food, qty } }
+  // store list of {food, qty} per date
+  const [selectedPlan, setSelectedPlan] = useState({}); // { dateStr: [{food,qty}, ...] }
   const [dragged, setDragged] = useState(null);
 
-  const handleDragStart = (food) => setDragged(food);
-  const handleDrop = (dateStr) => {
-    if (!dragged) return;
-    setSelectedPlan(prev => ({
-      ...prev,
-      [dateStr]: { food: dragged, qty: prev[dateStr]?.qty || 1 }
-    }));
+  const handleDragStart = (e, food) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', food.id);
+    setDragged(food);
+  };
+
+  const handleDrop = (e, dateStr) => {
+    e.preventDefault();
+    let foodToAdd = dragged;
+    if (!foodToAdd) {
+      // fallback: read from dataTransfer
+      const id = e.dataTransfer.getData('text/plain');
+      foodToAdd = items.find(f => f.id.toString() === id);
+    }
+    if (!foodToAdd) return;
+    setSelectedPlan(prev => {
+      const list = prev[dateStr] ? [...prev[dateStr]] : [];
+      const idx = list.findIndex(i => i.food.id === foodToAdd.id);
+      if (idx >= 0) list[idx].qty += 1;
+      else list.push({ food: foodToAdd, qty: 1 });
+      return { ...prev, [dateStr]: list };
+    });
     setDragged(null);
   };
-  const updateQty = (dateStr, delta) => {
+  const updateQty = (dateStr, index, delta) => {
     setSelectedPlan(prev => {
-      const copy = { ...prev };
-      if (copy[dateStr]) copy[dateStr].qty = Math.max(1, copy[dateStr].qty + delta);
-      return copy;
+      const list = [...(prev[dateStr]||[])];
+      list[index].qty = Math.max(1, list[index].qty + delta);
+      return { ...prev, [dateStr]: list };
     });
   };
-  const removeDate = (dateStr) => {
+  const removeItem = (dateStr, index) => {
     setSelectedPlan(prev => {
-      const copy = { ...prev };
-      delete copy[dateStr];
-      return copy;
+      const list = [...(prev[dateStr]||[])];
+      list.splice(index,1);
+      const next = { ...prev };
+      if (list.length) next[dateStr] = list;
+      else delete next[dateStr];
+      return next;
     });
   };
 
+  // total across all dates and items
   const { totalItems, totalPrice } = Object.values(selectedPlan)
+    .flat()
     .reduce((acc, { food, qty }) => {
       acc.totalItems += qty;
       acc.totalPrice += food.price * qty;
@@ -63,6 +93,14 @@ const CalendarOrder = ({ foodItems, onClose, onAddToCart, onProceedToPay }) => {
 
   const deliveryFee = 29;
   const grandTotal = totalPrice + deliveryFee;
+
+  // add helper to add all items of one date
+  const handleAddForDate = (dateStr) => {
+    const plans = selectedPlan[dateStr] || [];
+    plans.forEach(({ food, qty }) =>
+      onAddToCart(food, qty, dateStr)
+    );
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -104,15 +142,16 @@ const CalendarOrder = ({ foodItems, onClose, onAddToCart, onProceedToPay }) => {
         </div>
 
         {/* Body */}
-        <div className="flex flex-1 overflow-hidden px-6">
+        <div className="flex flex-col lg:flex-row flex-1 overflow-hidden px-6">
           {/* Available Meals */}
-          <div className="w-1/2 bg-white/50 dark:bg-gray-800/50 rounded-xl p-4 overflow-y-auto">
+          <div className="w-full lg:w-1/2 bg-white/50 dark:bg-gray-800/50 rounded-xl p-4 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-2">
               {items.map(f => (
                 <div
                   key={f.id}
                   draggable
-                  onDragStart={() => handleDragStart(f)}
+                  onDragStart={e => handleDragStart(e, f)}
+                  onDragEnd={() => setDragged(null)}
                   className="group bg-white dark:bg-gray-700 rounded-xl p-3 cursor-move hover:shadow-lg transition-all duration-300 border border-orange-100/50 dark:border-gray-600"
                 >
                   <div className="flex items-center space-x-3">
@@ -133,36 +172,53 @@ const CalendarOrder = ({ foodItems, onClose, onAddToCart, onProceedToPay }) => {
           </div>
 
           {/* Calendar Grid */}
-          <div className="flex-1 ml-6 bg-white/50 dark:bg-gray-800/50 rounded-xl p-4 overflow-y-auto">
-            <div className="grid grid-cols-7 gap-2">
-              {dates.map(d => {
-                const key = d.toDateString();
-                const plan = selectedPlan[key];
-                return (
-                  <div
-                    key={key}
-                    onDragOver={e => e.preventDefault()}
-                    onDrop={() => handleDrop(key)}
-                    className={`p-2 min-h-[80px] rounded ${plan ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}`}
-                  >
-                    <div className="text-xs font-medium">
-                      {d.toLocaleDateString('en-US',{ weekday: 'short', day: 'numeric' })}
-                    </div>
-                    {plan && (
-                      <div className="mt-1 bg-white p-1 rounded flex items-center justify-between">
-                        <img src={plan.food.imageUrl} alt="" className="w-6 h-6 rounded" />
-                        <span className="text-xs flex-1 truncate">{plan.food.name}</span>
-                        <div className="flex items-center">
-                          <button onClick={() => updateQty(key, -1)} className="w-4 h-4">−</button>
-                          <span className="mx-1 text-xs">{plan.qty}</span>
-                          <button onClick={() => updateQty(key, 1)} className="w-4 h-4">＋</button>
-                        </div>
-                        <button onClick={() => removeDate(key)} className="ml-1 text-red-500 text-xs">×</button>
+          <div className="w-full lg:flex-1 mt-6 lg:mt-0 lg:ml-6 bg-white/50 dark:bg-gray-800/50 rounded-xl p-4 overflow-hidden">
+            <div className="overflow-x-auto">
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 px-1">
+                {dates.map(d => {
+                  const key = d.toDateString();
+                  const plans = selectedPlan[key] || [];
+                  return (
+                    <div
+                      key={key}
+                      onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
+                      onDrop={e => handleDrop(e, key)}
+                      className={`p-2 rounded min-h-[100px] flex flex-col justify-start ${plans.length ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}`}
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs font-medium">
+                          {d.toLocaleDateString('en-US',{ weekday: 'short', day: 'numeric' })}
+                        </span>
+                        {plans.length > 0 && (
+                          <span className="text-[10px] bg-orange-200 text-orange-800 px-1 rounded">
+                            {plans.length} item{plans.length>1?'s':''}
+                          </span>
+                        )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                      <div className="flex-1 space-y-1 overflow-y-auto">
+                        {plans.map((plan, idx) => (
+                          <div key={idx} className="bg-white p-1 rounded flex items-center space-x-1">
+                            <img src={plan.food.imageUrl} alt="" className="w-5 h-5 rounded flex-shrink-0" />
+                            <span className="text-xs flex-1">{plan.food.name}</span>
+                            <button onClick={() => updateQty(key, idx, -1)} className="w-4 h-4 text-sm">−</button>
+                            <span className="px-1 text-xs">{plan.qty}</span>
+                            <button onClick={() => updateQty(key, idx, 1)} className="w-4 h-4 text-sm">＋</button>
+                            <button onClick={() => removeItem(key, idx)} className="ml-1 text-red-500 text-xs">×</button>
+                          </div>
+                        ))}
+                      </div>
+                      {plans.length > 0 && (
+                        <button
+                          onClick={() => handleAddForDate(key)}
+                          className="mt-2 text-xs text-blue-500 underline lg:hidden"
+                        >
+                          Add to Cart for {d.toLocaleDateString()}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -183,8 +239,10 @@ const CalendarOrder = ({ foodItems, onClose, onAddToCart, onProceedToPay }) => {
             <div className="flex space-x-4">
               <button
                 onClick={() => {
-                  Object.values(selectedPlan).forEach(({ food, qty }) =>
-                    onAddToCart(food, qty)
+                  Object.entries(selectedPlan).forEach(([date, list]) =>
+                    list.forEach(({ food, qty }) =>
+                      onAddToCart(food, qty, date)
+                    )
                   );
                   onClose();
                 }}
@@ -195,8 +253,10 @@ const CalendarOrder = ({ foodItems, onClose, onAddToCart, onProceedToPay }) => {
               </button>
               <button
                 onClick={() => {
-                  Object.values(selectedPlan).forEach(({ food, qty }) =>
-                    onAddToCart(food, qty)
+                  Object.entries(selectedPlan).forEach(([date, list]) =>
+                    list.forEach(({ food, qty }) =>
+                      onAddToCart(food, qty, date)
+                    )
                   );
                   onProceedToPay();
                 }}
