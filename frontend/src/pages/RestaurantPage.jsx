@@ -277,6 +277,19 @@ const RestaurantPage = ({ location, setCluster, cart, setCart, orderHistory, use
 };
 
 // Helper functions
+const randomImageUrls = [
+  'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=400&h=300&fit=crop',
+  'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=400&h=300&fit=crop'
+];
+
 const generateMockFoodItems = (location, cluster) => {
   const restaurants = [
     { id: 1, name: `${location} Bistro`, rating: 4.5 },
@@ -304,6 +317,10 @@ const generateMockFoodItems = (location, cluster) => {
       rating: restaurants[i % restaurants.length].rating,
       isVegetarian: isVeg,
       isVegan: isVegan,
+      isGlutenFree: Math.random() > 0.7,
+      isOrganic: Math.random() > 0.8,
+      calories: Math.floor(Math.random() * (500 - 150) + 150),
+      prepTime: `${Math.floor(Math.random() * (30 - 10) + 10)} min`,
       tags: [
         isVeg ? 'Vegetarian' : 'Non-Vegetarian',
         isVegan ? 'Vegan' : '',
@@ -313,8 +330,9 @@ const generateMockFoodItems = (location, cluster) => {
       price: basePrice,
       comboPrice: comboPrice,
       comboDescription: `Combo for 5 people (Save ${basePrice * 5 - comboPrice} DKK)`,
-      description: `Delicious ${foodNames[i % foodNames.length]} made with fresh ingredients.`,
-      imageUrl: foodImages[i % foodImages.length],
+      description: `Delicious ${foodNames[i % foodNames.length]} made with fresh ingredients and authentic spices.`,
+      // assign a random internet image URL for every item
+      imageUrl: randomImageUrls[i % randomImageUrls.length],
       popularity: Math.floor(Math.random() * 100), // For recommendations
     };
   });
