@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Edit } from 'lucide-react';
 
 const Navbar = ({ 
   location, 
@@ -58,36 +59,32 @@ const Navbar = ({
               {location && (
                 <div className="hidden lg:flex items-center space-x-4">
                   {/* Location Pill */}
-                  <div className="flex items-center group">
-                    <div className="relative">
-                      <div className="absolute -inset-1 bg-gradient-to-r from-orange-300 to-red-300 rounded opacity-0 group-hover:opacity-20 blur transition duration-300"></div>
-                      <button 
-                        onClick={onLocationEdit}
-                        className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-orange-50 to-red-50 rounded-full border border-orange-200/50 hover:border-orange-300/50 transition-all duration-300"
-                      >
-                        <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
-                        </svg>
-                        <span className="text-gray-700 font-medium">{location}</span>
-                      </button>
-                    </div>
-                  </div>
+                  <button 
+                    onClick={onLocationEdit}
+                    className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-orange-50 to-red-50 rounded-full border border-orange-200/50 hover:border-orange-300/50 transition-all duration-300"
+                  >
+                    {/* location icon */}  
+                    <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
+                    </svg>
+                    <span className="text-gray-700 font-medium">{location}</span>
+                    <Edit className="w-3 h-3 text-gray-500" />
+                  </button>
 
                   {/* Cluster Pill */}
                   {cluster && (
                     <div className="flex items-center group">
-                      <div className="relative">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-red-300 to-orange-300 rounded opacity-0 group-hover:opacity-20 blur transition duration-300"></div>
-                        <button 
-                          onClick={onClusterEdit}
-                          className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-red-50 to-orange-50 rounded-full border border-red-200/50 hover:border-red-300/50 transition-all duration-300"
-                        >
-                          <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                          </svg>
-                          <span className="text-gray-700 font-medium">{cluster.name}</span>
-                        </button>
-                      </div>
+                      <button 
+                        onClick={onClusterEdit}
+                        className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-red-50 to-orange-50 rounded-full border border-red-200/50 hover:border-red-300/50 transition-all duration-300"
+                      >
+                        {/* cluster icon */}
+                        <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span className="text-gray-700 font-medium">{cluster.name}</span>
+                        <Edit className="w-3 h-3 text-gray-500" />
+                      </button>
                     </div>
                   )}
                 </div>
@@ -156,8 +153,8 @@ const Navbar = ({
                 )}
                 
                 {hoveredButton === 'cart' && (
-                  <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
-                    Shopping Cart {cartCount > 0 && `(${cartCount})`}
+                  <div className="absolute -bottom-7 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
+                    Cart {cartCount > 0 && `(${cartCount})`}
                   </div>
                 )}
               </button>

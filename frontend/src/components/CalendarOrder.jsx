@@ -13,26 +13,17 @@ const CalendarOrder = ({ foodItems, onClose, onAddToCart, onProceedToPay }) => {
     });
   }, [duration]);
 
-  // helper to resolve local vs remote URLs
-  const resolveImage = (url) =>
-    url.startsWith('http')
-      ? url
-      : `${process.env.PUBLIC_URL}/${url}`;
-
-  // build rotating Unsplash URLs from env
-  const randomImgs = Array.from({ length: 5 }, (_, i) =>
-    `${process.env.REACT_APP_IMAGE_BASE_URL}/?food&sig=${i}`
-  );
-
-  // build items with proper imageUrl
+  const randomImgs = [
+    'https://source.unsplash.com/featured/?food',
+    'https://source.unsplash.com/featured/?meal',
+    'https://source.unsplash.com/featured/?dish',
+    'https://source.unsplash.com/featured/?cuisine',
+    'https://source.unsplash.com/featured/?restaurant',
+  ];
   const items = useMemo(() =>
-    foodItems.map((f, i) => ({
-      ...f,
-      imageUrl: f.imageUrl
-        ? resolveImage(f.imageUrl)
-        : foodImages[f.id]
-          ? resolveImage(foodImages[f.id])
-          : randomImgs[i % randomImgs.length]
+    foodItems.map((f,i) => ({
+      ...f, 
+      imageUrl: f.imageUrl || randomImgs[i % randomImgs.length]
     }))
   , [foodItems]);
 

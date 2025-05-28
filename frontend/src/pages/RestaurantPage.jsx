@@ -9,8 +9,12 @@ import Sidebar from '../components/Sidebar';
 import { foodImages } from '../assets/mockFoodImages';
 import { useNavigate } from 'react-router-dom';
 
-const RestaurantPage = ({ location, setCluster, cart, setCart, orderHistory, user, deliveryStatus }) => {
-  const [selectedCluster, setSelectedCluster] = useState(null);
+const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, setCart, orderHistory, user, deliveryStatus }) => {
+  // initialize from localStorage or prop
+  const [selectedCluster, setSelectedCluster] = useState(() => {
+    const saved = localStorage.getItem('selectedCluster');
+    return saved ? JSON.parse(saved) : initialCluster;
+  });
   const [showCart, setShowCart] = useState(false);
   const [showCalendarOrder, setShowCalendarOrder] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -43,9 +47,11 @@ const RestaurantPage = ({ location, setCluster, cart, setCart, orderHistory, use
     }
   }, [location, selectedCluster, orderHistory]);
 
+  // persist whenever user picks a cluster
   const handleClusterSelect = (cluster) => {
     setSelectedCluster(cluster);
     setCluster(cluster);
+    localStorage.setItem('selectedCluster', JSON.stringify(cluster));
   };
 
   const handleAddToCart = (foodItem, quantity = 1) => {
