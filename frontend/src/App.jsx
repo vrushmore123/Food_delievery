@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import RestaurantPage from './pages/RestaurantPage';
 import PaymentPage from './pages/Paymentpage';
 
 function App() {
-  const [location, setLocation] = useState(null);
-  const [cluster, setCluster] = useState(null);
+  // hydrate from localStorage
+  const [location, setLocation] = useState(
+    () => localStorage.getItem('selectedCity') || ''
+  );
+  const [cluster, setCluster] = useState(
+    () => JSON.parse(localStorage.getItem('selectedCluster')) || null
+  );
   const [cart, setCart] = useState([]);
   const [orderHistory, setOrderHistory] = useState([]);
   const [user, setUser] = useState(null);
   const [activeDelivery, setActiveDelivery] = useState(null);
+  const [deliveryStatus, setDeliveryStatus] = useState(null);
 
   // Load user data and order history from localStorage
   useEffect(() => {
@@ -30,6 +36,14 @@ function App() {
       localStorage.setItem('foodAppActiveDelivery', JSON.stringify(activeDelivery));
     }
   }, [orderHistory, activeDelivery]);
+
+  // persist location and cluster changes
+  useEffect(() => {
+    if (location) localStorage.setItem('selectedCity', location);
+  }, [location]);
+  useEffect(() => {
+    if (cluster) localStorage.setItem('selectedCluster', JSON.stringify(cluster));
+  }, [cluster]);
 
   const completeOrder = (orderDetails) => {
     const newOrder = {
@@ -128,16 +142,21 @@ function App() {
       <Route 
         path="/restaurants" 
         element={
-          <RestaurantPage 
-            location={location} 
-            setCluster={setCluster} 
-            cart={cart}
-            setCart={setCart}
-            orderHistory={orderHistory}
-            user={user}
-            deliveryStatus={activeDelivery?.deliveryStatus || []}
-          />
-        } 
+          location
+            ? (
+              <RestaurantPage 
+                location={location} 
+                cluster={cluster}
+                setCluster={setCluster} 
+                cart={cart}
+                setCart={setCart}
+                orderHistory={orderHistory}
+                user={user}
+                deliveryStatus={activeDelivery?.deliveryStatus || []}
+              />
+            )
+            : <Navigate to="/" replace />
+        }
       />
       <Route 
         path="/payment" 

@@ -11,6 +11,7 @@ const VendorDashboard = () => {
     description: "",
     restaurant_id: "",
   });
+  const [user, setUser] = useState(null); // Add user state
 
   // Fetch menu items on component mount
   useEffect(() => {
@@ -28,6 +29,16 @@ const VendorDashboard = () => {
     fetchMenuItems();
   }, []);
 
+  // Mock function to simulate user role fetching
+  const fetchUser = () => {
+    // Replace this with your actual user fetching logic
+    setUser({ id: 1, name: "John Doe", role: "staff" });
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -42,6 +53,11 @@ const VendorDashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Restrict menu addition to staff/employees only
+      if (!user || user.role !== "staff") {
+        alert("Only staff/employees can add menus.");
+        return;
+      }
       const response = await axios.post(
         "http://localhost:8000/vendor/menu/",
         formData
