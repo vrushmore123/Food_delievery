@@ -138,6 +138,14 @@ const PaymentPage = ({ cart, completeOrder, user }) => {
     setIsProcessing(false);
   };
 
+  useEffect(() => {
+    // Restrict access to admin users only
+    if (!user || user.role !== 'admin') {
+      alert('Access restricted to admin users.');
+      navigate('/');
+    }
+  }, [user, navigate]);
+
   if (orderCompleted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
