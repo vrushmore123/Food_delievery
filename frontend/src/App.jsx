@@ -1,29 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import RestaurantPage from './pages/RestaurantPage';
-import PaymentPage from './pages/Paymentpage';
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import RestaurantPage from "./pages/RestaurantPage";
+import PaymentPage from "./pages/Paymentpage";
+import OtpVerificationPopup from "./components/OtpVerificationPopup";
 
 function App() {
+  const navigate = useNavigate();
   // hydrate from localStorage
   const [location, setLocation] = useState(
-    () => localStorage.getItem('selectedCity') || ''
+    () => localStorage.getItem("selectedCity") || ""
   );
   const [cluster, setCluster] = useState(
-    () => JSON.parse(localStorage.getItem('selectedCluster')) || null
+    () => JSON.parse(localStorage.getItem("selectedCluster")) || null
   );
   const [cart, setCart] = useState([]);
   const [orderHistory, setOrderHistory] = useState([]);
   const [user, setUser] = useState(null);
   const [activeDelivery, setActiveDelivery] = useState(null);
   const [deliveryStatus, setDeliveryStatus] = useState(null);
+  const [showOtpPopup, setShowOtpPopup] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
 
-  // Load user data and order history from localStorage
   useEffect(() => {
-    const savedUser = localStorage.getItem('foodAppUser');
-    const savedHistory = localStorage.getItem('foodAppOrderHistory');
-    const savedDelivery = localStorage.getItem('foodAppActiveDelivery');
-    
+    const savedUser = localStorage.getItem("foodAppUser");
+    const savedHistory = localStorage.getItem("foodAppOrderHistory");
+    const savedDelivery = localStorage.getItem("foodAppActiveDelivery");
+
     if (savedUser) setUser(JSON.parse(savedUser));
     if (savedHistory) setOrderHistory(JSON.parse(savedHistory));
     if (savedDelivery) setActiveDelivery(JSON.parse(savedDelivery));
@@ -31,18 +34,22 @@ function App() {
 
   // Save data when it changes
   useEffect(() => {
-    localStorage.setItem('foodAppOrderHistory', JSON.stringify(orderHistory));
+    localStorage.setItem("foodAppOrderHistory", JSON.stringify(orderHistory));
     if (activeDelivery) {
-      localStorage.setItem('foodAppActiveDelivery', JSON.stringify(activeDelivery));
+      localStorage.setItem(
+        "foodAppActiveDelivery",
+        JSON.stringify(activeDelivery)
+      );
     }
   }, [orderHistory, activeDelivery]);
 
   // persist location and cluster changes
   useEffect(() => {
-    if (location) localStorage.setItem('selectedCity', location);
+    if (location) localStorage.setItem("selectedCity", location);
   }, [location]);
   useEffect(() => {
-    if (cluster) localStorage.setItem('selectedCluster', JSON.stringify(cluster));
+    if (cluster)
+      localStorage.setItem("selectedCluster", JSON.stringify(cluster));
   }, [cluster]);
 
   const completeOrder = (orderDetails) => {
@@ -55,13 +62,13 @@ function App() {
       paymentMethod: orderDetails.paymentMethod,
       deliveryInstructions: orderDetails.deliveryInstructions,
       status: orderDetails.status,
-      deliveryStatus: orderDetails.deliveryStatus
+      deliveryStatus: orderDetails.deliveryStatus,
     };
-    
+
     setOrderHistory([...orderHistory, newOrder]);
     setActiveDelivery(newOrder);
     setCart([]);
-    
+
     // Simulate delivery progress
     simulateDeliveryProgress(newOrder);
   };
@@ -73,102 +80,115 @@ function App() {
       updatedStatus[1].active = true;
       updatedStatus[1].time = new Date().toLocaleTimeString();
       updatedStatus[0].active = false;
-      
-      setActiveDelivery(prev => ({
+
+      setActiveDelivery((prev) => ({
         ...prev,
-        deliveryStatus: updatedStatus
+        deliveryStatus: updatedStatus,
       }));
-      
+
       // Update in history
-      setOrderHistory(prev => 
-        prev.map(o => 
-          o.id === order.id 
-            ? { ...o, deliveryStatus: updatedStatus } 
-            : o
+      setOrderHistory((prev) =>
+        prev.map((o) =>
+          o.id === order.id ? { ...o, deliveryStatus: updatedStatus } : o
         )
       );
     }, 300000); // 5 minutes
-    
+
     // Update to "on the way" after 10 minutes
     setTimeout(() => {
       const updatedStatus = [...order.deliveryStatus];
       updatedStatus[2].active = true;
       updatedStatus[2].time = new Date().toLocaleTimeString();
       updatedStatus[1].active = false;
-      
-      setActiveDelivery(prev => ({
+
+      setActiveDelivery((prev) => ({
         ...prev,
-        deliveryStatus: updatedStatus
+        deliveryStatus: updatedStatus,
       }));
-      
-      setOrderHistory(prev => 
-        prev.map(o => 
-          o.id === order.id 
-            ? { ...o, deliveryStatus: updatedStatus } 
-            : o
+
+      setOrderHistory((prev) =>
+        prev.map((o) =>
+          o.id === order.id ? { ...o, deliveryStatus: updatedStatus } : o
         )
       );
     }, 600000); // 10 minutes
-    
+
     // Update to "delivered" after 15 minutes
     setTimeout(() => {
       const updatedStatus = [...order.deliveryStatus];
       updatedStatus[3].active = true;
       updatedStatus[3].time = new Date().toLocaleTimeString();
       updatedStatus[2].active = false;
-      
-      setActiveDelivery(prev => ({
+
+      setActiveDelivery((prev) => ({
         ...prev,
-        status: 'delivered',
-        deliveryStatus: updatedStatus
+        status: "delivered",
+        deliveryStatus: updatedStatus,
       }));
-      
-      setOrderHistory(prev => 
-        prev.map(o => 
-          o.id === order.id 
-            ? { ...o, status: 'delivered', deliveryStatus: updatedStatus } 
+
+      setOrderHistory((prev) =>
+        prev.map((o) =>
+          o.id === order.id
+            ? { ...o, status: "delivered", deliveryStatus: updatedStatus }
             : o
         )
       );
     }, 900000); // 15 minutes
   };
 
+  const handleOtpVerification = () => {
+    setShowOtpPopup(true);
+  };
+
+  const closeOtpPopup = () => {
+    setShowOtpPopup(false);
+  };
+
+  const verifyOtp = () => {
+    setOtpVerified(true);
+    setShowOtpPopup(false);
+    navigate("/payment"); // Redirect to payment page after OTP verification
+  };
+
   return (
-    <Routes>
-      <Route 
-        path="/" 
-        element={<HomePage setLocation={setLocation} />} 
-      />
-      <Route 
-        path="/restaurants" 
-        element={
-          location
-            ? (
-              <RestaurantPage 
-                location={location} 
+    <>
+      <Routes>
+        <Route path="/" element={<HomePage setLocation={setLocation} />} />
+        <Route
+          path="/restaurants"
+          element={
+            location ? (
+              <RestaurantPage
+                location={location}
                 cluster={cluster}
-                setCluster={setCluster} 
+                setCluster={setCluster}
                 cart={cart}
                 setCart={setCart}
                 orderHistory={orderHistory}
                 user={user}
                 deliveryStatus={activeDelivery?.deliveryStatus || []}
+                onProceedToPay={handleOtpVerification} // Trigger OTP popup
               />
+            ) : (
+              <Navigate to="/" replace />
             )
-            : <Navigate to="/" replace />
-        }
-      />
-      <Route 
-        path="/payment" 
-        element={
-          <PaymentPage 
-            cart={cart}
-            completeOrder={completeOrder}
-            user={user}
-          />
-        } 
-      />
-    </Routes>
+          }
+        />
+        <Route
+          path="/payment"
+          element={
+            <PaymentPage
+              cart={cart}
+              completeOrder={completeOrder}
+              user={user}
+            />
+          }
+        />
+      </Routes>
+      {showOtpPopup && (
+        <OtpVerificationPopup onClose={closeOtpPopup} onVerify={verifyOtp} />
+      )}
+    </>
   );
 }
 
