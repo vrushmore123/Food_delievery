@@ -1,20 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Star, Clock, Plus, Minus, ShoppingCart, Heart } from 'lucide-react';
+import { X, Star, Clock, Plus, Minus, ShoppingCart, Heart, Calendar } from 'lucide-react';
 
-const FoodItemModal = ({ item, isOpen, onClose, onAddToCart }) => {
+const FoodItemModal = ({ item, isOpen, onClose, onAddToCart, showDatePicker = false, availableDates = [] }) => {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setQuantity(1);
+      setSelectedDate(null);
+      setIsFavorite(false);
+    }
+  }, [isOpen]);
 
   const handleAddToCart = async () => {
     setIsAdding(true);
     
     setTimeout(() => {
-      onAddToCart(item, quantity);
+      if (showDatePicker && selectedDate) {
+        onAddToCart(item, quantity, selectedDate);
+      } else {
+        onAddToCart(item, quantity);
+      }
       setIsAdding(false);
       onClose();
       setQuantity(1);
+      setSelectedDate(null);
     }, 500);
   };
 
@@ -180,6 +195,64 @@ const FoodItemModal = ({ item, isOpen, onClose, onAddToCart }) => {
 
             {/* Fixed Footer with quantity and add to cart */}
             <div className="flex-shrink-0 p-6 border-t border-gray-200 bg-gradient-to-r from-orange-50 to-red-50">
+              {/* Enhanced Date Picker for Calendar Planning */}
+              {showDatePicker && availableDates.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-blue-600" />
+                    Select Date for Meal Planning
+                  </h3>
+                  <div className="max-h-48 overflow-y-auto custom-scrollbar border border-gray-200 rounded-lg p-3 bg-white">
+                    <div className="grid grid-cols-7 gap-2">
+                      {availableDates.map((date) => {
+                        const dateStr = date.toDateString();
+                        const isSelected = selectedDate === dateStr;
+                        const isToday = date.toDateString() === new Date().toDateString();
+                        const isPast = date < new Date().setHours(0, 0, 0, 0);
+                        
+                        return (
+                          <button
+                            key={dateStr}
+                            onClick={() => setSelectedDate(dateStr)}
+                            disabled={isPast}
+                            className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 min-h-[60px] flex flex-col items-center justify-center ${
+                              isSelected
+                                ? 'bg-blue-600 text-white shadow-lg transform scale-105'
+                                : isToday
+                                ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 border-2 border-amber-300'
+                                : isPast
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
+                                : 'bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 border-2 border-transparent hover:border-blue-200'
+                            }`}
+                          >
+                            <div className="text-xs font-medium">
+                              {date.toLocaleDateString('en-US', { weekday: 'short' })}
+                            </div>
+                            <div className="text-lg font-bold">
+                              {date.getDate()}
+                            </div>
+                            {isToday && (
+                              <div className="text-xs mt-1 opacity-75">Today</div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {selectedDate && (
+                    <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm text-blue-800 font-medium">
+                        Selected: {new Date(selectedDate).toLocaleDateString('en-US', { 
+                          weekday: 'long', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="flex items-center justify-between gap-6">
                 {/* Quantity selector */}
                 <div className="flex items-center space-x-4">
@@ -203,29 +276,44 @@ const FoodItemModal = ({ item, isOpen, onClose, onAddToCart }) => {
                   </div>
                 </div>
 
-                {/* Add to cart button */}
+                {/* Enhanced Add to cart button */}
                 <button
                   onClick={handleAddToCart}
-                  disabled={isAdding}
+                  disabled={isAdding || (showDatePicker && !selectedDate)}
                   className={`flex-1 flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-lg text-white transition-all duration-300 ${
                     isAdding
                       ? "bg-green-600 cursor-not-allowed"
+                      : (showDatePicker && !selectedDate)
+                      ? "bg-gray-400 cursor-not-allowed"
                       : "bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 shadow-lg hover:shadow-xl transform hover:scale-105"
                   }`}
                 >
                   {isAdding ? (
                     <>
                       <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Adding to Cart...</span>
+                      <span>Adding...</span>
                     </>
                   ) : (
                     <>
                       <ShoppingCart className="w-6 h-6" />
-                      <span>Add {quantity} to Cart • {(item.price * quantity).toFixed(0)} DKK</span>
+                      <span>
+                        {showDatePicker 
+                          ? selectedDate
+                            ? `Plan for ${new Date(selectedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                            : 'Select Date First'
+                          : `Add ${quantity} to Cart`
+                        } • {(item.price * quantity).toFixed(0)} DKK
+                      </span>
                     </>
                   )}
                 </button>
               </div>
+              
+              {showDatePicker && !selectedDate && (
+                <p className="text-sm text-amber-600 mt-2 text-center font-medium">
+                  Please select a date to add this meal to your calendar plan
+                </p>
+              )}
             </div>
           </motion.div>
         </div>

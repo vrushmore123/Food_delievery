@@ -345,6 +345,205 @@ body {
   will-change: transform;
 }
 
+/* Enhanced calendar animations */
+@keyframes dropEffect {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); background-color: #fef3c7; }
+  100% { transform: scale(1); }
+}
+
+@keyframes mealIndicatorPop {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+  100% { transform: scale(1) rotate(360deg); opacity: 1; }
+}
+
+@keyframes dragPreview {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: scale(1.1) rotate(2deg); opacity: 0.9; }
+}
+
+@keyframes hoverGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(249, 115, 22, 0.1); }
+}
+
+/* Calendar date cell animations */
+.calendar-date-cell {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calendar-date-cell:hover {
+  transform: translateY(-2px);
+}
+
+.calendar-date-cell.has-meals {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #3b82f6;
+}
+
+.calendar-date-cell.drag-over {
+  animation: hoverGlow 1.5s infinite;
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+  border-color: #f59e0b !important;
+}
+
+.calendar-date-cell.drop-animation {
+  animation: dropEffect 0.6s ease-out;
+}
+
+/* Meal indicator animations */
+.meal-indicator {
+  animation: mealIndicatorPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.meal-indicator:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.meal-indicator:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+/* Drag preview styling */
+.drag-preview {
+  position: absolute;
+  top: -1000px;
+  left: -1000px;
+  pointer-events: none;
+  z-index: 1000;
+  animation: dragPreview 0.3s ease-out;
+}
+
+/* Enhanced tooltip styling */
+.meal-tooltip {
+  background: rgba(17, 24, 39, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Pulse animation for dietary indicators */
+@keyframes dietaryPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+.dietary-indicator {
+  animation: dietaryPulse 2s infinite;
+}
+
+.dietary-indicator.vegan {
+  animation-delay: 0s;
+}
+
+.dietary-indicator.gluten-free {
+  animation-delay: 0.3s;
+}
+
+.dietary-indicator.keto {
+  animation-delay: 0.6s;
+}
+
+/* Enhanced modal animations */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Improved scrollbar for modals */
+.modal-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #f97316, #ea580c);
+  border-radius: 3px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ea580c, #dc2626);
+}
+
+/* Enhanced button hover effects */
+.btn-enhanced:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn-enhanced:active {
+  transform: translateY(0);
+}
+
+/* Calendar grid responsive enhancements */
+@media (max-width: 768px) {
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  
+  .calendar-date-cell {
+    min-height: 80px;
+    padding: 8px;
+  }
+  
+  .meal-indicator {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .calendar-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Enhanced date cell states */
+.date-cell-today {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde047 100%);
+  border: 2px solid #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.date-cell-past {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.date-cell-weekend {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+}
+
+/* Loading states */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Enhanced focus states for accessibility */
+.calendar-date-cell:focus {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+.meal-indicator:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+  border-radius: 50%;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -45,3 +45,462 @@
 .animate-slideUp {
   animation: slideUp 0.3s ease-out forwards;
 }
+
+/* Professional Calendar System */
+.calendar-container {
+  font-family: 'Inter', sans-serif;
+  background: rgb(250, 250, 250);
+}
+
+/* Color System for Meal Types */
+:root {
+  --meal-regular: rgb(37, 99, 235); /* blue-600 */
+  --meal-vegetarian: rgb(16, 185, 129); /* emerald-500 */
+  --meal-special: rgb(245, 158, 11); /* amber-500 */
+  --meal-unavailable: rgb(239, 68, 68); /* red-500 */
+  --surface-primary: rgb(255, 255, 255);
+  --surface-secondary: rgb(249, 250, 251);
+  --border-light: rgb(229, 231, 235);
+  --text-primary: rgb(17, 24, 39);
+  --text-secondary: rgb(107, 114, 128);
+  --spacing-unit: 8px;
+  --border-radius: 12px;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --transition-standard: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Professional Calendar Grid */
+.calendar-grid-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--border-radius);
+  background: var(--surface-primary);
+  border: 1px solid var(--border-light);
+}
+
+.calendar-grid-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: calc(var(--spacing-unit) * 1.5);
+  padding: calc(var(--spacing-unit) * 2);
+}
+
+.calendar-grid-month {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(140px, 1fr));
+  gap: calc(var(--spacing-unit) * 1);
+  padding: calc(var(--spacing-unit) * 2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(209, 213, 219) transparent;
+}
+
+.calendar-grid-month::-webkit-scrollbar {
+  height: 6px;
+}
+
+.calendar-grid-month::-webkit-scrollbar-track {
+  background: rgb(249, 250, 251);
+  border-radius: 3px;
+}
+
+.calendar-grid-month::-webkit-scrollbar-thumb {
+  background: rgb(209, 213, 219);
+  border-radius: 3px;
+}
+
+.calendar-grid-month::-webkit-scrollbar-thumb:hover {
+  background: rgb(156, 163, 175);
+}
+
+/* Scroll shadows */
+.calendar-grid-month::before,
+.calendar-grid-month::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 300ms ease;
+}
+
+.calendar-grid-month::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(255,255,255,0.8), transparent);
+}
+
+.calendar-grid-month::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
+}
+
+/* Professional Date Cell */
+.date-cell {
+  position: relative;
+  min-height: 120px;
+  padding: calc(var(--spacing-unit) * 2);
+  background: var(--surface-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition-standard);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.date-cell:hover {
+  border-color: var(--meal-regular);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.date-cell:focus {
+  outline: 2px solid var(--meal-regular);
+  outline-offset: 2px;
+}
+
+.date-cell.has-meals {
+  background: linear-gradient(135deg, rgb(239, 246, 255) 0%, rgb(219, 234, 254) 100%);
+  border-color: var(--meal-regular);
+}
+
+.date-cell.is-today {
+  background: linear-gradient(135deg, rgb(254, 243, 199) 0%, rgb(253, 230, 138) 100%);
+  border-color: var(--meal-special);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.date-cell.is-weekend {
+  background: linear-gradient(135deg, rgb(243, 244, 246) 0%, rgb(229, 231, 235) 100%);
+}
+
+.date-cell.drag-over {
+  border-color: var(--meal-special);
+  background: rgb(254, 243, 199);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Date Header */
+.date-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: calc(var(--spacing-unit) * 1);
+}
+
+.date-day {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.date-number {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.date-cell.is-today .date-number {
+  color: var(--meal-special);
+}
+
+/* Meal Indicators Container */
+.meal-indicators-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+}
+
+/* Professional Meal Indicator */
+.meal-indicator-professional {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: var(--transition-standard);
+}
+
+.meal-indicator-professional:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
+.meal-indicator-professional.type-regular {
+  background: var(--meal-regular);
+}
+
+.meal-indicator-professional.type-vegetarian {
+  background: var(--meal-vegetarian);
+}
+
+.meal-indicator-professional.type-special {
+  background: var(--meal-special);
+}
+
+.meal-indicator-professional.type-unavailable {
+  background: var(--meal-unavailable);
+}
+
+.meal-indicator-professional img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Quantity Badge */
+.quantity-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  background: var(--meal-unavailable);
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid white;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Color Legend */
+.color-legend {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit) * 3);
+  padding: calc(var(--spacing-unit) * 2);
+  background: var(--surface-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-light);
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit) * 1);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid white;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Professional Food Item Card */
+.food-item-card-professional {
+  background: var(--surface-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacing-unit) * 2);
+  cursor: pointer;
+  transition: var(--transition-standard);
+  position: relative;
+  overflow: hidden;
+}
+
+.food-item-card-professional:hover {
+  border-color: var(--meal-regular);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.food-item-card-professional:focus {
+  outline: 2px solid var(--meal-regular);
+  outline-offset: 2px;
+}
+
+.food-item-card-professional::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--meal-regular);
+  transform: scaleX(0);
+  transition: transform 300ms ease;
+  transform-origin: left;
+}
+
+.food-item-card-professional:hover::before {
+  transform: scaleX(1);
+}
+
+.food-item-card-professional.vegetarian::before {
+  background: var(--meal-vegetarian);
+}
+
+.food-item-card-professional.special::before {
+  background: var(--meal-special);
+}
+
+/* Enhanced Calendar Scrolling */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(243, 244, 246, 0.5);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.7);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.9);
+}
+
+.custom-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Professional Date Cell - Enhanced */
+.date-cell {
+  position: relative;
+  padding: 16px;
+  background: white;
+  border: 2px solid rgb(229, 231, 235);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.date-cell:hover {
+  border-color: rgb(59, 130, 246);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transform: translateY(-2px);
+}
+
+.date-cell:focus {
+  outline: 2px solid rgb(59, 130, 246);
+  outline-offset: 2px;
+}
+
+.date-cell.has-meals {
+  background: linear-gradient(135deg, rgb(239, 246, 255) 0%, rgb(219, 234, 254) 100%);
+  border-color: rgb(59, 130, 246);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
+.date-cell.is-today {
+  background: linear-gradient(135deg, rgb(254, 243, 199) 0%, rgb(253, 230, 138) 100%);
+  border-color: rgb(245, 158, 11);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.date-cell.drag-over {
+  border-color: rgb(245, 158, 11);
+  background: rgb(254, 243, 199);
+  transform: scale(1.02);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Month view specific adjustments */
+.calendar-month-container {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-month-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Responsive adjustments for larger cards */
+@media (max-width: 1280px) {
+  .date-cell {
+    padding: 12px;
+    min-height: 140px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .date-cell {
+    padding: 10px;
+    min-height: 120px;
+  }
+  
+  .date-number {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .date-cell {
+    padding: 8px;
+    min-height: 100px;
+  }
+  
+  .date-day {
+    font-size: 0.625rem;
+  }
+  
+  .date-number {
+    font-size: 0.875rem;
+  }
+}
+
+/* Enhanced meal indicator for larger cards */
+.meal-indicators-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 8px 0;
+}
+
+/* Loading animation improvements */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
