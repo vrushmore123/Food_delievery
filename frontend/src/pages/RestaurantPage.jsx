@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import ClusterCard from '../components/ClusterCard';
 import RestaurantCard from '../components/RestaurantCard';
@@ -20,6 +20,7 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
   const [showCart, setShowCart] = useState(false);
   const [showCalendarOrder, setShowCalendarOrder] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   // Expanded filters
   const [filters, setFilters] = useState({
     // Dietary preferences
@@ -369,9 +370,10 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
               </div>
             </div>
 
-            {/* Enhanced Filters Section */}
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg">
-              <div className="flex flex-wrap gap-4 items-center justify-between mb-6">
+            {/* Enhanced Filters Section with Toggle */}
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-100">
+              {/* Search and Filter Toggle Header */}
+              <div className="flex flex-wrap gap-4 items-center justify-between p-6 border-b border-gray-200">
                 <div className="flex items-center space-x-2 flex-grow max-w-md">
                   <input
                     type="text"
@@ -381,126 +383,168 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
                     className="w-full px-4 py-2 rounded-xl bg-white/50 border border-orange-100 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                   />
                 </div>
-              </div>
-
-              {/* Filter Categories */}
-              <div className="space-y-4">
-                {/* Dietary Preferences */}
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
-                    <span className="mr-2">🥗</span>
-                    Dietary Preferences
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {['glutenFree', 'lactoseFree', 'vegan', 'vegetarian', 'organic', 'keto', 'lowCarb'].map(filter => (
-                      <motion.button
-                        key={filter}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => toggleFilter(filter)}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                          filters[filter]
-                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                            : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
-                        }`}
-                      >
-                        {filter.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Food Categories */}
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
-                    <span className="mr-2">🍽️</span>
-                    Food Categories
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {['snacks', 'appetizers', 'mainCourse', 'desserts', 'beverages', 'salads', 'soups'].map(filter => (
-                      <motion.button
-                        key={filter}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => toggleFilter(filter)}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                          filters[filter]
-                            ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
-                            : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
-                        }`}
-                      >
-                        {filter.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Cuisines */}
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
-                    <span className="mr-2">🌍</span>
-                    Cuisines
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {['italian', 'asian', 'american', 'mexican', 'indian', 'mediterranean', 'french', 'thai', 'chinese', 'japanese', 'middle_eastern'].map(filter => (
-                      <motion.button
-                        key={filter}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => toggleFilter(filter)}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                          filters[filter]
-                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                            : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
-                        }`}
-                      >
-                        {filter.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Price Range */}
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
-                    <span className="mr-2">💰</span>
-                    Price Range
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    { [
-                      { key: 'budget', label: 'Budget (Under 100 DKK)' },
-                      { key: 'midRange', label: 'Mid-range (100-200 DKK)' },
-                      { key: 'premium', label: 'Premium (Above 200 DKK)' }
-                    ].map(filter => (
-                      <motion.button
-                        key={filter.key}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => toggleFilter(filter.key)}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                          filters[filter.key]
-                            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg'
-                            : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
-                        }`}
-                      >
-                        {filter.label}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Clear All Filters */}
-              {Object.values(filters).some(f => f) && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm text-gray-600">
+                    {filteredFoodItems.length} of {foodItems.length} items
+                  </span>
                   <button
-                    onClick={() => setFilters(prev => Object.keys(prev).reduce((acc, key) => ({ ...acc, [key]: false }), {}))}
-                    className="text-sm text-red-600 hover:text-red-700 font-medium"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                      showFilters 
+                        ? 'bg-orange-600 text-white shadow-lg'
+                        : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
-                    Clear all filters
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                    </svg>
+                    <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
+                    <svg 
+                      className={`w-4 h-4 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </button>
                 </div>
-              )}
+              </div>
+
+              {/* Collapsible Filter Categories */}
+              <AnimatePresence>
+                {showFilters && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="p-6 space-y-6">
+                      {/* Dietary Preferences */}
+                      <div>
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                          <span className="mr-2">🥗</span>
+                          Dietary Preferences
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {['glutenFree', 'lactoseFree', 'vegan', 'vegetarian', 'organic', 'keto', 'lowCarb'].map(filter => (
+                            <motion.button
+                              key={filter}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => toggleFilter(filter)}
+                              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                                filters[filter]
+                                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                                  : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                              }`}
+                            >
+                              {filter.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Food Categories */}
+                      <div>
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                          <span className="mr-2">🍽️</span>
+                          Food Categories
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {['snacks', 'appetizers', 'mainCourse', 'desserts', 'beverages', 'salads', 'soups'].map(filter => (
+                            <motion.button
+                              key={filter}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => toggleFilter(filter)}
+                              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                                filters[filter]
+                                  ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                                  : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                              }`}
+                            >
+                              {filter.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Cuisines */}
+                      <div>
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                          <span className="mr-2">🌍</span>
+                          Cuisines
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {['italian', 'asian', 'american', 'mexican', 'indian', 'mediterranean', 'french', 'thai', 'chinese', 'japanese', 'middle_eastern'].map(filter => (
+                            <motion.button
+                              key={filter}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => toggleFilter(filter)}
+                              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                                filters[filter]
+                                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                                  : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                              }`}
+                            >
+                              {filter.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Price Range */}
+                      <div>
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                          <span className="mr-2">💰</span>
+                          Price Range
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          { [
+                            { key: 'budget', label: 'Budget (Under 100 DKK)' },
+                            { key: 'midRange', label: 'Mid-range (100-200 DKK)' },
+                            { key: 'premium', label: 'Premium (Above 200 DKK)' }
+                          ].map(filter => (
+                            <motion.button
+                              key={filter.key}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => toggleFilter(filter.key)}
+                              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                                filters[filter.key]
+                                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg'
+                                  : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                              }`}
+                            >
+                              {filter.label}
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Clear All Filters */}
+                      {Object.values(filters).some(f => f) && (
+                        <div className="pt-4 border-t border-gray-200">
+                          <button
+                            onClick={() => setFilters(prev => Object.keys(prev).reduce((acc, key) => ({ ...acc, [key]: false }), {}))}
+                            className="text-sm text-red-600 hover:text-red-700 font-medium flex items-center space-x-1 hover:bg-red-50 px-2 py-1 rounded transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Clear all filters</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Menu Items */}
@@ -574,42 +618,152 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
   );
 };
 
-// Enhanced food items generator with more variety and properties
+// Enhanced food items generator with 20+ items per restaurant
 const generateMockFoodItems = (restaurant) => {
   const foodCategories = {
     'Bella Italia Ristorante': [
+      // Main Courses (8 items)
       { name: 'Margherita Pizza', image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop&auto=format', price: 165, category: 'Main Course', cuisine: ['Italian'] },
       { name: 'Pasta Carbonara', image: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=400&h=300&fit=crop&auto=format', price: 145, category: 'Main Course', cuisine: ['Italian'] },
-      { name: 'Tiramisu', image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Desserts', cuisine: ['Italian'] },
       { name: 'Lasagna Bolognese', image: 'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=400&h=300&fit=crop&auto=format', price: 175, category: 'Main Course', cuisine: ['Italian'] },
-      { name: 'Caesar Salad', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Salads', cuisine: ['Italian'] },
-      { name: 'Minestrone Soup', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Soups', cuisine: ['Italian'] },
+      { name: 'Seafood Risotto', image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&h=300&fit=crop&auto=format', price: 195, category: 'Main Course', cuisine: ['Italian'] },
+      { name: 'Chicken Parmigiana', image: 'https://images.unsplash.com/photo-1632778149955-e80f8ceca2e8?w=400&h=300&fit=crop&auto=format', price: 185, category: 'Main Course', cuisine: ['Italian'] },
+      { name: 'Quattro Stagioni Pizza', image: 'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=400&h=300&fit=crop&auto=format', price: 175, category: 'Main Course', cuisine: ['Italian'] },
+      { name: 'Gnocchi Sorrentina', image: 'https://images.unsplash.com/photo-1563379091339-03246963d51a?w=400&h=300&fit=crop&auto=format', price: 155, category: 'Main Course', cuisine: ['Italian'] },
+      { name: 'Osso Buco', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop&auto=format', price: 225, category: 'Main Course', cuisine: ['Italian'] },
+      
+      // Appetizers (5 items)
       { name: 'Bruschetta', image: 'https://images.unsplash.com/photo-1572441712966-931d1f3fa936?w=400&h=300&fit=crop&auto=format', price: 55, category: 'Appetizers', cuisine: ['Italian'] },
-      { name: 'Italian Wine', image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=300&fit=crop&auto=format', price: 125, category: 'Beverages', cuisine: ['Italian'] }
+      { name: 'Antipasto Platter', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Appetizers', cuisine: ['Italian'] },
+      { name: 'Arancini', image: 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Appetizers', cuisine: ['Italian'] },
+      { name: 'Caprese Salad', image: 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=400&h=300&fit=crop&auto=format', price: 75, category: 'Appetizers', cuisine: ['Italian'] },
+      { name: 'Calamari Fritti', image: 'https://images.unsplash.com/photo-1559847844-d681b5935328?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Appetizers', cuisine: ['Italian'] },
+      
+      // Salads (3 items)
+      { name: 'Caesar Salad', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Salads', cuisine: ['Italian'] },
+      { name: 'Arugula & Parmesan', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Salads', cuisine: ['Italian'] },
+      { name: 'Mediterranean Salad', image: 'https://images.unsplash.com/photo-1505576391880-b3f9d713dc4f?w=400&h=300&fit=crop&auto=format', price: 105, category: 'Salads', cuisine: ['Italian'] },
+      
+      // Soups (2 items)
+      { name: 'Minestrone Soup', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Soups', cuisine: ['Italian'] },
+      { name: 'Tomato Basil Soup', image: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=300&fit=crop&auto=format', price: 55, category: 'Soups', cuisine: ['Italian'] },
+      
+      // Desserts (4 items)
+      { name: 'Tiramisu', image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Desserts', cuisine: ['Italian'] },
+      { name: 'Panna Cotta', image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=300&fit=crop&auto=format', price: 75, category: 'Desserts', cuisine: ['Italian'] },
+      { name: 'Cannoli', image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Desserts', cuisine: ['Italian'] },
+      { name: 'Gelato Selection', image: 'https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?w=400&h=300&fit=crop&auto=format', price: 45, category: 'Desserts', cuisine: ['Italian'] },
+      
+      // Beverages (3 items)
+      { name: 'Italian Wine', image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=300&fit=crop&auto=format', price: 125, category: 'Beverages', cuisine: ['Italian'] },
+      { name: 'Espresso', image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&h=300&fit=crop&auto=format', price: 25, category: 'Beverages', cuisine: ['Italian'] },
+      { name: 'Limoncello', image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop&auto=format', price: 45, category: 'Beverages', cuisine: ['Italian'] }
     ],
+    
     'Copenhagen Grill House': [
+      // Main Courses (10 items)
       { name: 'Ribeye Steak', image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop&auto=format', price: 285, category: 'Main Course', cuisine: ['American'] },
       { name: 'BBQ Burger', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop&auto=format', price: 165, category: 'Main Course', cuisine: ['American'] },
       { name: 'Grilled Salmon', image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop&auto=format', price: 225, category: 'Main Course', cuisine: ['American'] },
       { name: 'BBQ Ribs', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop&auto=format', price: 245, category: 'Main Course', cuisine: ['American'] },
+      { name: 'Grilled Chicken', image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop&auto=format', price: 185, category: 'Main Course', cuisine: ['American'] },
+      { name: 'T-Bone Steak', image: 'https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?w=400&h=300&fit=crop&auto=format', price: 295, category: 'Main Course', cuisine: ['American'] },
+      { name: 'Pulled Pork Sandwich', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop&auto=format', price: 145, category: 'Main Course', cuisine: ['American'] },
+      { name: 'Grilled Pork Chops', image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=400&h=300&fit=crop&auto=format', price: 195, category: 'Main Course', cuisine: ['American'] },
+      { name: 'Fish & Chips', image: 'https://images.unsplash.com/photo-1544982503-9f984c14501a?w=400&h=300&fit=crop&auto=format', price: 155, category: 'Main Course', cuisine: ['American'] },
+      { name: 'Smoked Brisket', image: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400&h=300&fit=crop&auto=format', price: 235, category: 'Main Course', cuisine: ['American'] },
+      
+      // Appetizers (5 items)
       { name: 'Loaded Nachos', image: 'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Appetizers', cuisine: ['American'] },
+      { name: 'Buffalo Wings', image: 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Appetizers', cuisine: ['American'] },
+      { name: 'Onion Rings', image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?w=400&h=300&fit=crop&auto=format', price: 55, category: 'Appetizers', cuisine: ['American'] },
+      { name: 'Mozzarella Sticks', image: 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Appetizers', cuisine: ['American'] },
+      { name: 'Potato Skins', image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&h=300&fit=crop&auto=format', price: 75, category: 'Appetizers', cuisine: ['American'] },
+      
+      // Salads (3 items)
       { name: 'Coleslaw', image: 'https://images.unsplash.com/photo-1505576391880-b3f9d713dc4f?w=400&h=300&fit=crop&auto=format', price: 45, category: 'Salads', cuisine: ['American'] },
+      { name: 'Garden Salad', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Salads', cuisine: ['American'] },
+      { name: 'BBQ Chicken Salad', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop&auto=format', price: 125, category: 'Salads', cuisine: ['American'] },
+      
+      // Desserts (4 items)
+      { name: 'Chocolate Brownie', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&h=300&fit=crop&auto=format', price: 75, category: 'Desserts', cuisine: ['American'] },
+      { name: 'Apple Pie', image: 'https://images.unsplash.com/photo-1535920527002-b35e96722a64?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Desserts', cuisine: ['American'] },
+      { name: 'Cheesecake', image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Desserts', cuisine: ['American'] },
+      { name: 'Ice Cream Sundae', image: 'https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Desserts', cuisine: ['American'] },
+      
+      // Beverages (3 items)
       { name: 'Craft Beer', image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Beverages', cuisine: ['American'] },
-      { name: 'Chocolate Brownie', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&h=300&fit=crop&auto=format', price: 75, category: 'Desserts', cuisine: ['American'] }
+      { name: 'Milkshake', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&h=300&fit=crop&auto=format', price: 55, category: 'Beverages', cuisine: ['American'] },
+      { name: 'Iced Tea', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop&auto=format', price: 35, category: 'Beverages', cuisine: ['American'] }
     ],
+    
     'Nordic Fusion Kitchen': [
+      // Main Courses (8 items)
       { name: 'Pan-Seared Cod', image: 'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6d3?w=400&h=300&fit=crop&auto=format', price: 235, category: 'Main Course', cuisine: ['Nordic'] },
-      { name: 'Nordic Salad Bowl', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format', price: 145, category: 'Salads', cuisine: ['Nordic'] },
+      { name: 'Arctic Char', image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&h=300&fit=crop&auto=format', price: 265, category: 'Main Course', cuisine: ['Nordic'] },
+      { name: 'Venison Medallions', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop&auto=format', price: 285, category: 'Main Course', cuisine: ['Nordic'] },
+      { name: 'Smoked Trout', image: 'https://images.unsplash.com/photo-1559847844-d681b5935328?w=400&h=300&fit=crop&auto=format', price: 195, category: 'Main Course', cuisine: ['Nordic'] },
+      { name: 'Duck Breast', image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop&auto=format', price: 245, category: 'Main Course', cuisine: ['Nordic'] },
+      { name: 'Lamb Chops', image: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=400&h=300&fit=crop&auto=format', price: 275, category: 'Main Course', cuisine: ['Nordic'] },
+      { name: 'Sea Bass', image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop&auto=format', price: 225, category: 'Main Course', cuisine: ['Nordic'] },
+      { name: 'Nordic Tasting Menu', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&auto=format', price: 395, category: 'Main Course', cuisine: ['Nordic'] },
+      
+      // Appetizers (4 items)
       { name: 'Reindeer Carpaccio', image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop&auto=format', price: 185, category: 'Appetizers', cuisine: ['Nordic'] },
-      { name: 'Arctic Char', image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&h=300&fit=crop&auto=format', price: 265, category: 'Main Course', cuisine: ['Nordic'] }
+      { name: 'Gravlax', image: 'https://images.unsplash.com/photo-1544982503-9f984c14501a?w=400&h=300&fit=crop&auto=format', price: 165, category: 'Appetizers', cuisine: ['Nordic'] },
+      { name: 'Nordic Cheese Board', image: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400&h=300&fit=crop&auto=format', price: 145, category: 'Appetizers', cuisine: ['Nordic'] },
+      { name: 'Pickled Herring', image: 'https://images.unsplash.com/photo-1559847844-d681b5935328?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Appetizers', cuisine: ['Nordic'] },
+      
+      // Salads (3 items)
+      { name: 'Nordic Salad Bowl', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format', price: 145, category: 'Salads', cuisine: ['Nordic'] },
+      { name: 'Seaweed Salad', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Salads', cuisine: ['Nordic'] },
+      { name: 'Root Vegetable Salad', image: 'https://images.unsplash.com/photo-1505576391880-b3f9d713dc4f?w=400&h=300&fit=crop&auto=format', price: 105, category: 'Salads', cuisine: ['Nordic'] },
+      
+      // Soups (2 items)
+      { name: 'Mushroom Soup', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Soups', cuisine: ['Nordic'] },
+      { name: 'Fish Soup', image: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Soups', cuisine: ['Nordic'] },
+      
+      // Desserts (3 items)
+      { name: 'Berry Compote', image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=300&fit=crop&auto=format', price: 75, category: 'Desserts', cuisine: ['Nordic'] },
+      { name: 'Nordic Chocolate', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Desserts', cuisine: ['Nordic'] },
+      { name: 'Cloudberry Tart', image: 'https://images.unsplash.com/photo-1535920527002-b35e96722a64?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Desserts', cuisine: ['Nordic'] },
+      
+      // Beverages (5 items)
+      { name: 'Aquavit', image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Beverages', cuisine: ['Nordic'] },
+      { name: 'Nordic Beer', image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=300&fit=crop&auto=format', price: 55, category: 'Beverages', cuisine: ['Nordic'] },
+      { name: 'Elderflower Drink', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop&auto=format', price: 45, category: 'Beverages', cuisine: ['Nordic'] },
+      { name: 'Lingonberry Juice', image: 'https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=400&h=300&fit=crop&auto=format', price: 35, category: 'Beverages', cuisine: ['Nordic'] },
+      { name: 'Birch Water', image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=300&fit=crop&auto=format', price: 25, category: 'Beverages', cuisine: ['Nordic'] }
     ]
   };
 
+  // Generate default items for other restaurants with 25+ items each
   const defaultItems = [
-    { name: 'Chef Special', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&auto=format', price: 195, category: 'Main Course', cuisine: ['International'] },
-    { name: 'House Salad', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format', price: 125, category: 'Salads', cuisine: ['International'] },
-    { name: 'Dessert Selection', image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Desserts', cuisine: ['International'] },
-    { name: 'Fresh Soup', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Soups', cuisine: ['International'] }
+    { name: 'Chef Special Burger', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop&auto=format', price: 195, category: 'Main Course', cuisine: ['International'] },
+    { name: 'Teriyaki Chicken', image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop&auto=format', price: 175, category: 'Main Course', cuisine: ['Asian'] },
+    { name: 'Fish Tacos', image: 'https://images.unsplash.com/photo-1565299585323-38174c26afe4?w=400&h=300&fit=crop&auto=format', price: 145, category: 'Main Course', cuisine: ['Mexican'] },
+    { name: 'Chicken Tikka Masala', image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&h=300&fit=crop&auto=format', price: 165, category: 'Main Course', cuisine: ['Indian'] },
+    { name: 'Pad Thai', image: 'https://images.unsplash.com/photo-1559314809-0f31657def5e?w=400&h=300&fit=crop&auto=format', price: 155, category: 'Main Course', cuisine: ['Thai'] },
+    { name: 'Sushi Platter', image: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400&h=300&fit=crop&auto=format', price: 225, category: 'Main Course', cuisine: ['Japanese'] },
+    { name: 'Greek Gyros', image: 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=400&h=300&fit=crop&auto=format', price: 135, category: 'Main Course', cuisine: ['Mediterranean'] },
+    { name: 'French Onion Soup', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Soups', cuisine: ['French'] },
+    { name: 'House Salad', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Salads', cuisine: ['International'] },
+    { name: 'Garlic Bread', image: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=400&h=300&fit=crop&auto=format', price: 45, category: 'Appetizers', cuisine: ['International'] },
+    { name: 'Chicken Wings', image: 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Appetizers', cuisine: ['American'] },
+    { name: 'Vegetable Spring Rolls', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Appetizers', cuisine: ['Asian'] },
+    { name: 'Hummus & Pita', image: 'https://images.unsplash.com/photo-1571197827925-b99bbe116b1d?w=400&h=300&fit=crop&auto=format', price: 55, category: 'Appetizers', cuisine: ['Mediterranean'] },
+    { name: 'Quesadillas', image: 'https://images.unsplash.com/photo-1565299585323-38174c26afe4?w=400&h=300&fit=crop&auto=format', price: 75, category: 'Appetizers', cuisine: ['Mexican'] },
+    { name: 'Samosas', image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Appetizers', cuisine: ['Indian'] },
+    { name: 'Chocolate Cake', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&h=300&fit=crop&auto=format', price: 75, category: 'Desserts', cuisine: ['International'] },
+    { name: 'Fruit Salad', image: 'https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?w=400&h=300&fit=crop&auto=format', price: 55, category: 'Desserts', cuisine: ['International'] },
+    { name: 'Ice Cream', image: 'https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?w=400&h=300&fit=crop&auto=format', price: 45, category: 'Desserts', cuisine: ['International'] },
+    { name: 'Coffee', image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&h=300&fit=crop&auto=format', price: 25, category: 'Beverages', cuisine: ['International'] },
+    { name: 'Fresh Orange Juice', image: 'https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=400&h=300&fit=crop&auto=format', price: 35, category: 'Beverages', cuisine: ['International'] },
+    { name: 'Smoothie Bowl', image: 'https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Beverages', cuisine: ['International'] },
+    { name: 'Green Tea', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop&auto=format', price: 25, category: 'Beverages', cuisine: ['Asian'] },
+    { name: 'Lemonade', image: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=400&h=300&fit=crop&auto=format', price: 30, category: 'Beverages', cuisine: ['International'] },
+    { name: 'Energy Bowl', image: 'https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Salads', cuisine: ['International'] },
+    { name: 'Protein Wrap', image: 'https://images.unsplash.com/photo-1565299585323-38174c26afe4?w=400&h=300&fit=crop&auto=format', price: 105, category: 'Main Course', cuisine: ['International'] }
   ];
 
   const items = foodCategories[restaurant.name] || defaultItems;

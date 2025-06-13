@@ -322,6 +322,29 @@ body {
   }
 }
 
+/* Card flip styles */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Improving hover performance */
+.will-change-transform {
+  will-change: transform;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -8,6 +8,7 @@ import RestaurantSelectionPage from "./pages/RestaurantSelectionPage";
 import MenuPage from "./pages/MenuPage";
 import VendorDashboard from "./components/Dashboard/Vendor";
 import RestaurantManagement from "./pages/RestaurantManagement";
+import './styles/card-flip.css'; // Import the card flip styles
 
 function App() {
   const navigate = useNavigate();
@@ -169,11 +170,6 @@ function App() {
                 { id: 3, name: "Far (6+ km)" },
               ]}
               setCluster={setCluster}
-              restaurants={[
-                { id: 1, name: "Bistro", rating: 4.5 },
-                { id: 2, name: "Grill", rating: 4.2 },
-                { id: 3, name: "Delight", rating: 4.7 },
-              ]}
             />
           }
         />

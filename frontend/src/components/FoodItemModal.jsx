@@ -31,14 +31,14 @@ const FoodItemModal = ({ item, isOpen, onClose, onAddToCart }) => {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
+            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] overflow-hidden flex flex-col"
           >
-            {/* Header with Image */}
-            <div className="relative">
+            {/* Header with Image - Fixed height */}
+            <div className="relative flex-shrink-0">
               <img 
                 src={item.imageUrl} 
                 alt={item.name}
-                className="w-full h-64 object-cover"
+                className="w-full h-56 object-cover"
                 onError={(e) => {
                   e.target.src = `https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=600&h=400&fit=crop&auto=format`;
                 }}
@@ -62,29 +62,19 @@ const FoodItemModal = ({ item, isOpen, onClose, onAddToCart }) => {
               </button>
 
               {/* Bottom overlay with key info */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-1 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
                       <span className="text-sm font-semibold">
                         {item.rating || "4.5"}
                       </span>
                     </div>
-                    
-                    {item.isVegetarian ? (
-                      <div className="w-6 h-6 border-2 border-green-500 rounded-sm flex items-center justify-center bg-white">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      </div>
-                    ) : (
-                      <div className="w-6 h-6 border-2 border-red-500 rounded-sm flex items-center justify-center bg-white">
-                        <div className="w-3 h-3 bg-red-500 rounded-sm"></div>
-                      </div>
-                    )}
                   </div>
                   
                   <div className="text-right">
-                    <div className="text-3xl font-bold text-white">
+                    <div className="text-2xl font-bold text-white">
                       {item.price} <span className="text-lg text-gray-200">DKK</span>
                     </div>
                   </div>
@@ -92,102 +82,104 @@ const FoodItemModal = ({ item, isOpen, onClose, onAddToCart }) => {
               </div>
             </div>
 
-            {/* Content */}
-            <div className="p-6 max-h-[50vh] overflow-y-auto">
-              {/* Title and Restaurant */}
-              <div className="mb-6">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                  {item.name}
-                </h2>
-                <div className="flex items-center text-gray-600 mb-3">
-                  <svg className="w-5 h-5 mr-2 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-lg">{item.restaurant}</span>
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-6">
+                {/* Title and Restaurant */}
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                    {item.name}
+                  </h2>
+                  <div className="flex items-center text-gray-600 mb-3">
+                    <svg className="w-5 h-5 mr-2 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-lg">{item.restaurant}</span>
+                  </div>
+                  <div className="flex items-center text-gray-500">
+                    <Clock className="w-4 h-4 mr-2" />
+                    <span>{item.prepTime || "15-20 min"} • {item.calories || "320"} cal</span>
+                  </div>
                 </div>
-                <div className="flex items-center text-gray-500">
-                  <Clock className="w-4 h-4 mr-2" />
-                  <span>{item.prepTime || "15-20 min"} • {item.calories || "320"} cal</span>
+
+                {/* Description */}
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">Description</h3>
+                  <p className="text-gray-600 leading-relaxed text-lg">
+                    {item.description || "A delicious and carefully prepared dish made with fresh, high-quality ingredients. Perfect for any time of the day when you want something special and satisfying."}
+                  </p>
                 </div>
-              </div>
 
-              {/* Description */}
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">Description</h3>
-                <p className="text-gray-600 leading-relaxed text-lg">
-                  {item.description || "A delicious and carefully prepared dish made with fresh, high-quality ingredients. Perfect for any time of the day when you want something special and satisfying."}
-                </p>
-              </div>
+                {/* Key Info Grid */}
+                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                  {/* Ingredients */}
+                  {item.ingredients && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Ingredients</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {item.ingredients.map((ingredient, index) => (
+                          <span 
+                            key={index}
+                            className="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full font-medium"
+                          >
+                            {ingredient}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-              {/* Key Info Grid */}
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                {/* Ingredients */}
-                {item.ingredients && (
+                  {/* Dietary Information */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Ingredients</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {item.ingredients.map((ingredient, index) => (
-                        <span 
-                          key={index}
-                          className="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full font-medium"
-                        >
-                          {ingredient}
-                        </span>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Dietary Info</h3>
+                    <div className="space-y-2">
+                      {item.isGlutenFree && (
+                        <div className="flex items-center text-blue-700">
+                          <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                          Gluten Free
+                        </div>
+                      )}
+                      {item.isVegan && (
+                        <div className="flex items-center text-green-700">
+                          <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
+                          Vegan
+                        </div>
+                      )}
+                      {item.isLactoseFree && (
+                        <div className="flex items-center text-purple-700">
+                          <div className="w-2 h-2 bg-purple-600 rounded-full mr-3"></div>
+                          Lactose Free
+                        </div>
+                      )}
+                      {item.isOrganic && (
+                        <div className="flex items-center text-green-700">
+                          <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
+                          Organic
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Nutritional Information */}
+                {item.nutritionalInfo && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Nutrition Facts</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {Object.entries(item.nutritionalInfo).map(([key, value]) => (
+                        <div key={key} className="text-center p-4 bg-gray-50 rounded-xl">
+                          <div className="text-sm text-gray-500 capitalize font-medium">{key}</div>
+                          <div className="text-lg font-bold text-gray-900 mt-1">{value}</div>
+                        </div>
                       ))}
                     </div>
                   </div>
                 )}
-
-                {/* Dietary Information */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Dietary Info</h3>
-                  <div className="space-y-2">
-                    {item.isVegetarian && (
-                      <div className="flex items-center text-green-700">
-                        <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
-                        Vegetarian
-                      </div>
-                    )}
-                    {item.isVegan && (
-                      <div className="flex items-center text-green-700">
-                        <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
-                        Vegan
-                      </div>
-                    )}
-                    {item.isGlutenFree && (
-                      <div className="flex items-center text-blue-700">
-                        <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
-                        Gluten Free
-                      </div>
-                    )}
-                    {item.isLactoseFree && (
-                      <div className="flex items-center text-purple-700">
-                        <div className="w-2 h-2 bg-purple-600 rounded-full mr-3"></div>
-                        Lactose Free
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
-
-              {/* Nutritional Information */}
-              {item.nutritionalInfo && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Nutrition Facts</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    {Object.entries(item.nutritionalInfo).map(([key, value]) => (
-                      <div key={key} className="text-center p-4 bg-gray-50 rounded-xl">
-                        <div className="text-sm text-gray-500 capitalize font-medium">{key}</div>
-                        <div className="text-lg font-bold text-gray-900 mt-1">{value}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* Footer with quantity and add to cart */}
-            <div className="p-6 border-t border-gray-200 bg-gradient-to-r from-orange-50 to-red-50">
+            {/* Fixed Footer with quantity and add to cart */}
+            <div className="flex-shrink-0 p-6 border-t border-gray-200 bg-gradient-to-r from-orange-50 to-red-50">
               <div className="flex items-center justify-between gap-6">
                 {/* Quantity selector */}
                 <div className="flex items-center space-x-4">
