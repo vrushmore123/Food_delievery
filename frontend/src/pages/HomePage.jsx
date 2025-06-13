@@ -52,8 +52,6 @@ const HomePage = ({ setLocation }) => {
             Delicious food delivered to your doorstep
           </p>
         </div>
-        
-        {/* Horizontal layout for wider screens */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <div>
             <LocationSelector 

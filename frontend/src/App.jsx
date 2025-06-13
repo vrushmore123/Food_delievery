@@ -4,6 +4,10 @@ import HomePage from "./pages/HomePage";
 import RestaurantPage from "./pages/RestaurantPage";
 import PaymentPage from "./pages/Paymentpage";
 import OtpVerificationPopup from "./components/OtpVerificationPopup";
+import RestaurantSelectionPage from "./pages/RestaurantSelectionPage";
+import MenuPage from "./pages/MenuPage";
+import VendorDashboard from "./components/Dashboard/Vendor";
+import RestaurantManagement from "./pages/RestaurantManagement";
 
 function App() {
   const navigate = useNavigate();
@@ -157,21 +161,34 @@ function App() {
         <Route
           path="/restaurants"
           element={
-            location ? (
-              <RestaurantPage
-                location={location}
-                cluster={cluster}
-                setCluster={setCluster}
-                cart={cart}
-                setCart={setCart}
-                orderHistory={orderHistory}
-                user={user}
-                deliveryStatus={activeDelivery?.deliveryStatus || []}
-                onProceedToPay={handleOtpVerification} // Trigger OTP popup
-              />
-            ) : (
-              <Navigate to="/" replace />
-            )
+            <RestaurantSelectionPage
+              location={location}
+              clusters={[
+                { id: 1, name: "Nearby (0-2 km)" },
+                { id: 2, name: "Medium (2-6 km)" },
+                { id: 3, name: "Far (6+ km)" },
+              ]}
+              setCluster={setCluster}
+              restaurants={[
+                { id: 1, name: "Bistro", rating: 4.5 },
+                { id: 2, name: "Grill", rating: 4.2 },
+                { id: 3, name: "Delight", rating: 4.7 },
+              ]}
+            />
+          }
+        />
+        <Route
+          path="/restaurant/:restaurantId"
+          element={
+            <RestaurantPage
+              location={location}
+              cluster={cluster}
+              cart={cart}
+              setCart={setCart}
+              orderHistory={orderHistory}
+              user={user}
+              deliveryStatus={activeDelivery?.deliveryStatus || []}
+            />
           }
         />
         <Route
@@ -183,6 +200,11 @@ function App() {
               user={user}
             />
           }
+        />
+        <Route path="/adminDashboard" element={<RestaurantManagement />} />
+        <Route
+          path="/admin/:id"
+          element={<VendorDashboard user={user} setUser={setUser} />}
         />
       </Routes>
       {showOtpPopup && (

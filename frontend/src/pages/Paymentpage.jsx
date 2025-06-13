@@ -16,10 +16,6 @@ const PaymentPage = ({ cart, completeOrder, user }) => {
     expiry: "",
     cvv: "",
   });
-  const [contactInfo, setContactInfo] = useState("");
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpError, setOtpError] = useState("");
 
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -108,40 +104,13 @@ const PaymentPage = ({ cart, completeOrder, user }) => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSendOtp = () => {
-    if (!contactInfo.trim()) {
-      setOtpError("Phone number or email is required");
-      return;
-    }
-    setOtpSent(true);
-    setOtpError("");
-    // Simulate OTP sending
-    setTimeout(() => {
-      alert("OTP sent to " + contactInfo);
-    }, 1000);
-  };
-
-  const handleVerifyOtp = () => {
-    if (otp !== "1234") {
-      // Simulate OTP verification
-      setOtpError("Invalid OTP");
-      return;
-    }
-    setOtpError("");
-    completeOrderAndNavigate();
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
-    if (!otpSent) {
-      handleSendOtp();
-    } else {
-      handleVerifyOtp();
-    }
+    completeOrderAndNavigate(); // Directly proceed to order completion
   };
 
   const completeOrderAndNavigate = () => {
@@ -523,73 +492,32 @@ const PaymentPage = ({ cart, completeOrder, user }) => {
                     </div>
                   </div>
 
-                  {/* Contact Info */}
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <span className="text-yellow-600 font-semibold text-sm">
-                          4
-                        </span>
+                  {/* Remove Contact Info Section */}
+                  {/* Remove OTP Verification Section */}
+                  <button
+                    type="submit"
+                    disabled={isProcessing}
+                    className={`w-full mt-8 py-4 px-6 rounded-xl font-semibold text-white transition-all duration-200 transform hover:scale-105 ${
+                      isProcessing
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 shadow-lg"
+                    }`}
+                  >
+                    {isProcessing ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Processing...</span>
                       </div>
-                      <h2 className="text-xl font-semibold text-gray-800">
-                        Contact Information
-                      </h2>
-                    </div>
-                    <div className="ml-11">
-                      <input
-                        type="text"
-                        value={contactInfo}
-                        onChange={(e) => setContactInfo(e.target.value)}
-                        className={`w-full border-2 rounded-xl p-4 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-yellow-100 ${
-                          otpError
-                            ? "border-red-400"
-                            : "border-gray-200 focus:border-yellow-400"
-                        }`}
-                        placeholder="Enter phone number or email"
-                      />
-                      {otpError && (
-                        <p className="text-red-500 text-sm mt-2 flex items-center">
-                          <span className="mr-1">⚠️</span>
-                          {otpError}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                    ) : (
+                      `Place Order – DKK ${total.toFixed(2)}`
+                    )}
+                  </button>
 
-                  {/* OTP Verification */}
-                  {otpSent && (
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                          <span className="text-red-600 font-semibold text-sm">
-                            5
-                          </span>
-                        </div>
-                        <h2 className="text-xl font-semibold text-gray-800">
-                          OTP Verification
-                        </h2>
-                      </div>
-                      <div className="ml-11">
-                        <input
-                          type="text"
-                          value={otp}
-                          onChange={(e) => setOtp(e.target.value)}
-                          className={`w-full border-2 rounded-xl p-4 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-red-100 ${
-                            otpError
-                              ? "border-red-400"
-                              : "border-gray-200 focus:border-red-400"
-                          }`}
-                          placeholder="Enter OTP"
-                        />
-                        {otpError && (
-                          <p className="text-red-500 text-sm mt-2 flex items-center">
-                            <span className="mr-1">⚠️</span>
-                            {otpError}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                  {/* Security Badge */}
+                  <div className="mt-6 flex items-center justify-center space-x-2 text-sm text-gray-500">
+                    <div className="text-green-500">🔒</div>
+                    <span>Secure payment powered by SSL encryption</span>
+                  </div>
                 </form>
               </div>
             </div>
