@@ -8,7 +8,9 @@ import RestaurantSelectionPage from "./pages/RestaurantSelectionPage";
 import MenuPage from "./pages/MenuPage";
 import VendorDashboard from "./components/Dashboard/Vendor";
 import RestaurantManagement from "./pages/RestaurantManagement";
-import './styles/card-flip.css'; // Import the card flip styles
+import { CartProvider } from './context/CartContext';
+import './styles/card-flip.css';
+import './styles/cart.css';
 
 function App() {
   const navigate = useNavigate();
@@ -156,7 +158,7 @@ function App() {
   };
 
   return (
-    <>
+    <CartProvider>
       <Routes>
         <Route path="/" element={<HomePage setLocation={setLocation} />} />
         <Route
@@ -206,7 +208,7 @@ function App() {
       {showOtpPopup && (
         <OtpVerificationPopup onClose={closeOtpPopup} onVerify={verifyOtp} />
       )}
-    </>
+    </CartProvider>
   );
 }
 
