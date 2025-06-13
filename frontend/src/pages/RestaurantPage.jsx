@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import ClusterCard from '../components/ClusterCard';
+import RestaurantCard from '../components/RestaurantCard';
 import FoodCard from '../components/foodcart';
+import FoodItemModal from '../components/FoodItemModal';
 import CartModal from '../components/CartModal';
 import CalendarOrder from '../components/CalendarOrder';
 import Sidebar from '../components/Sidebar';
-import { foodImages } from '../assets/mockFoodImages';
 import { useNavigate } from 'react-router-dom';
 
 const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, setCart, orderHistory, user, deliveryStatus }) => {
@@ -14,23 +15,57 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
     const saved = localStorage.getItem('selectedCluster');
     return saved ? JSON.parse(saved) : initialCluster;
   });
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [selectedMenuItem, setSelectedMenuItem] = useState(null);
   const [showCart, setShowCart] = useState(false);
   const [showCalendarOrder, setShowCalendarOrder] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  // Expanded filters
   const [filters, setFilters] = useState({
+    // Dietary preferences
     glutenFree: false,
     lactoseFree: false,
     vegan: false,
+    vegetarian: false,
+    organic: false,
+    keto: false,
+    lowCarb: false,
+    // Food types
     snacks: false,
+    appetizers: false,
+    mainCourse: false,
+    desserts: false,
+    beverages: false,
+    salads: false,
+    soups: false,
+    // Protein types
     chicken: false,
     beef: false,
     pork: false,
-    american: false,
+    seafood: false,
+    lamb: false,
+    // Cuisine types
+    italian: false,
     asian: false,
-    drinks: false,
-    european: false,
-    middleEastern: false,
+    american: false,
+    mexican: false,
+    indian: false,
     mediterranean: false,
+    french: false,
+    thai: false,
+    chinese: false,
+    japanese: false,
+    middle_eastern: false,
+    // Price ranges
+    budget: false,
+    midRange: false,
+    premium: false,
+    // Special features
+    spicy: false,
+    mild: false,
+    popular: false,
+    newItem: false,
+    chefSpecial: false
   });
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -42,19 +77,82 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
     { id: 3, name: 'Far (6+ km)', radius: '6+ km' },
   ];
 
+  // Enhanced restaurants data with 7-8 restaurants
+  const restaurants = [
+    {
+      id: 1,
+      name: 'Bella Italia Ristorante',
+      rating: 4.8,
+      address: '123 Nyhavn Street, Copenhagen City Center',
+      specialties: ['Italian', 'Pizza', 'Pasta', 'Wine'],
+      imageUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&h=300&fit=crop&auto=format'
+    },
+    {
+      id: 2,
+      name: 'Copenhagen Grill House',
+      rating: 4.6,
+      address: '456 Strøget Avenue, Downtown Copenhagen',
+      specialties: ['Steakhouse', 'Grilled', 'Burgers', 'BBQ'],
+      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&h=300&fit=crop&auto=format'
+    },
+    {
+      id: 3,
+      name: 'Nordic Fusion Kitchen',
+      rating: 4.9,
+      address: '789 Vesterbro Boulevard, Trendy District',
+      specialties: ['Nordic', 'Fusion', 'Seafood', 'Modern'],
+      imageUrl: 'https://images.unsplash.com/photo-1592861956120-e524fc739696?w=500&h=300&fit=crop&auto=format'
+    },
+    {
+      id: 4,
+      name: 'Tokyo Ramen & Sushi',
+      rating: 4.7,
+      address: '321 Østerbro Street, Cultural Quarter',
+      specialties: ['Japanese', 'Sushi', 'Ramen', 'Asian'],
+      imageUrl: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=500&h=300&fit=crop&auto=format'
+    },
+    {
+      id: 5,
+      name: 'Mediterranean Delight',
+      rating: 4.5,
+      address: '654 Amager Boulevard, Seaside Area',
+      specialties: ['Mediterranean', 'Greek', 'Healthy', 'Salads'],
+      imageUrl: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=500&h=300&fit=crop&auto=format'
+    },
+    {
+      id: 6,
+      name: 'French Bistro Le Petit',
+      rating: 4.4,
+      address: '987 Frederiksberg Street, Historic Quarter',
+      specialties: ['French', 'Bistro', 'Wine', 'Pastries'],
+      imageUrl: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=500&h=300&fit=crop&auto=format'
+    },
+    {
+      id: 7,
+      name: 'Organic Garden Café',
+      rating: 4.6,
+      address: '147 Nørrebro Park, Green District',
+      specialties: ['Organic', 'Vegetarian', 'Healthy', 'Local'],
+      imageUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=500&h=300&fit=crop&auto=format'
+    },
+    {
+      id: 8,
+      name: 'Street Food Central',
+      rating: 4.3,
+      address: '258 Kødbyen Market, Food Hall District',
+      specialties: ['Street Food', 'International', 'Quick Bites', 'Diverse'],
+      imageUrl: 'https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=500&h=300&fit=crop&auto=format'
+    }
+  ];
+
   const [foodItems, setFoodItems] = useState([]);
-  const [recommendedItems, setRecommendedItems] = useState([]);
 
   useEffect(() => {
-    if (location) {
-      const mockFoodItems = generateMockFoodItems(location, selectedCluster);
+    if (selectedRestaurant) {
+      const mockFoodItems = generateMockFoodItems(selectedRestaurant);
       setFoodItems(mockFoodItems);
-      
-      // Generate recommended items based on order history
-      const recommended = generateRecommendedItems(mockFoodItems, orderHistory);
-      setRecommendedItems(recommended);
     }
-  }, [location, selectedCluster, orderHistory]);
+  }, [selectedRestaurant]);
 
   // persist whenever user picks a cluster
   const handleClusterSelect = (cluster) => {
@@ -63,18 +161,35 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
     localStorage.setItem('selectedCluster', JSON.stringify(cluster));
   };
 
-  const handleAddToCart = (foodItem, quantity = 1) => {
-    const existingItem = cart.find(item => item.id === foodItem.id);
-    
-    if (existingItem) {
+  const handleRestaurantSelect = (restaurant) => {
+    setSelectedRestaurant(restaurant);
+  };
+
+  const handleAddToCart = (foodItem, quantity = 1, date = null) => {
+    const cartItem = {
+      ...foodItem,
+      quantity,
+      date: date || new Date().toDateString(),
+      id: `${foodItem.id}_${date || 'today'}_${Date.now()}`
+    };
+
+    setCart(prevCart => [...prevCart, cartItem]);
+  };
+
+  const handleUpdateQuantity = (itemId, newQuantity, date) => {
+    if (newQuantity <= 0) {
+      setCart(cart.filter(item => !(item.id === itemId && item.date === date)));
+    } else {
       setCart(cart.map(item => 
-        item.id === foodItem.id 
-          ? { ...item, quantity: item.quantity + quantity } 
+        (item.id === itemId && item.date === date)
+          ? { ...item, quantity: newQuantity }
           : item
       ));
-    } else {
-      setCart([...cart, { ...foodItem, quantity }]);
     }
+  };
+
+  const handleRemoveItem = (itemId, date) => {
+    setCart(cart.filter(item => !(item.id === itemId && item.date === date)));
   };
 
   const handleProceedToPay = () => {
@@ -91,42 +206,61 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
   };
 
   const filteredFoodItems = foodItems.filter(item => {
-    // Filter by dietary preferences and cuisines
-    const dietaryMatch =
-      (!filters.glutenFree && !filters.lactoseFree && !filters.vegan && !filters.snacks && !filters.chicken && !filters.beef && !filters.pork) ||
+    // Dietary filters
+    const dietaryMatch = 
+      (!Object.values(filters).some(f => f)) ||
       (filters.glutenFree && item.isGlutenFree) ||
       (filters.lactoseFree && item.isLactoseFree) ||
       (filters.vegan && item.isVegan) ||
-      (filters.snacks && item.tags.includes('Snacks')) ||
-      (filters.chicken && item.tags.includes('Chicken')) ||
-      (filters.beef && item.tags.includes('Beef')) ||
-      (filters.pork && item.tags.includes('Pork'));
+      (filters.vegetarian && item.isVegetarian) ||
+      (filters.organic && item.isOrganic) ||
+      (filters.keto && item.isKeto) ||
+      (filters.lowCarb && item.isLowCarb);
 
-    const cuisineMatch =
-      (!filters.american && !filters.asian && !filters.drinks && !filters.european && !filters.middleEastern && !filters.mediterranean) ||
-      (filters.american && item.tags.includes('American')) ||
-      (filters.asian && item.tags.includes('Asian')) ||
-      (filters.drinks && item.tags.includes('Drinks')) ||
-      (filters.european && item.tags.includes('European')) ||
-      (filters.middleEastern && item.tags.includes('Middle Eastern')) ||
-      (filters.mediterranean && item.tags.includes('Mediterranean'));
+    // Food type filters
+    const typeMatch = 
+      (!filters.snacks && !filters.appetizers && !filters.mainCourse && !filters.desserts && !filters.beverages && !filters.salads && !filters.soups) ||
+      (filters.snacks && item.category === 'Snacks') ||
+      (filters.appetizers && item.category === 'Appetizers') ||
+      (filters.mainCourse && item.category === 'Main Course') ||
+      (filters.desserts && item.category === 'Desserts') ||
+      (filters.beverages && item.category === 'Beverages') ||
+      (filters.salads && item.category === 'Salads') ||
+      (filters.soups && item.category === 'Soups');
 
-    // Filter by search query
+    // Cuisine filters
+    const cuisineMatch = 
+      (!filters.italian && !filters.asian && !filters.american && !filters.mexican && !filters.indian && !filters.mediterranean && !filters.french && !filters.thai && !filters.chinese && !filters.japanese && !filters.middle_eastern) ||
+      (filters.italian && item.cuisine?.includes('Italian')) ||
+      (filters.asian && item.cuisine?.includes('Asian')) ||
+      (filters.american && item.cuisine?.includes('American')) ||
+      (filters.mexican && item.cuisine?.includes('Mexican')) ||
+      (filters.indian && item.cuisine?.includes('Indian')) ||
+      (filters.mediterranean && item.cuisine?.includes('Mediterranean')) ||
+      (filters.french && item.cuisine?.includes('French')) ||
+      (filters.thai && item.cuisine?.includes('Thai')) ||
+      (filters.chinese && item.cuisine?.includes('Chinese')) ||
+      (filters.japanese && item.cuisine?.includes('Japanese')) ||
+      (filters.middle_eastern && item.cuisine?.includes('Middle Eastern'));
+
+    // Price filters
+    const priceMatch = 
+      (!filters.budget && !filters.midRange && !filters.premium) ||
+      (filters.budget && item.price <= 100) ||
+      (filters.midRange && item.price > 100 && item.price <= 200) ||
+      (filters.premium && item.price > 200);
+
+    // Search match
     const searchMatch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.restaurant.toLowerCase().includes(searchQuery.toLowerCase());
+      item.restaurant.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return dietaryMatch && cuisineMatch && searchMatch;
+    return dietaryMatch && typeMatch && cuisineMatch && priceMatch && searchMatch;
   });
 
-  const [selectedMenuItem, setSelectedMenuItem] = useState(null);
-
-  const handleMenuItemClick = (item) => {
-    setSelectedMenuItem(item);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
       <Navbar 
         location={location} 
         cluster={selectedCluster} 
@@ -138,16 +272,10 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
         onSearch={setSearchQuery}
       />
       
-      {/* Decorative Background Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-2000"></div>
-      </div>
-
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="container mx-auto px-4 py-8 relative z-10"
+        className="container mx-auto px-4 py-8"
       >
         {!selectedCluster ? (
           <motion.div 
@@ -155,8 +283,8 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
             animate={{ opacity: 1 }}
             className="flex flex-col items-center"
           >
-            <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-              Select Your Delivery Zone in {location}
+            <h2 className="text-3xl font-bold mb-8 text-gray-900">
+              Select Your Delivery Zone in <span className="text-orange-600">{location}</span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
               {clusters.map(cluster => (
@@ -168,125 +296,261 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
               ))}
             </div>
           </motion.div>
+        ) : !selectedRestaurant ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-8"
+          >
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4 text-gray-900">
+                Choose a Restaurant in <span className="text-orange-600">{selectedCluster.name}</span>
+              </h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Discover amazing restaurants in your area. Fresh food, fast delivery, and great taste guaranteed.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {restaurants.map(restaurant => (
+                <RestaurantCard 
+                  key={restaurant.id}
+                  restaurant={restaurant}
+                  onSelect={handleRestaurantSelect}
+                />
+              ))}
+            </div>
+          </motion.div>
         ) : (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="space-y-8"
           >
-            {/* Filters Section */}
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg">
-              <div className="flex flex-wrap gap-4 items-center justify-between">
+            {/* Restaurant Header */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <img
+                    src={selectedRestaurant.imageUrl}
+                    alt={selectedRestaurant.name}
+                    className="w-16 h-16 rounded-xl object-cover"
+                  />
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">{selectedRestaurant.name}</h2>
+                    <p className="text-gray-600">{selectedRestaurant.address}</p>
+                    <div className="flex items-center space-x-4 mt-1">
+                      <span className="flex items-center text-yellow-500">
+                        <span className="mr-1">★</span>
+                        {selectedRestaurant.rating}
+                      </span>
+                      <span className="text-gray-500">25-35 min</span>
+                      <span className="text-green-600">Free delivery</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => setShowCalendarOrder(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-colors flex items-center space-x-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Plan Weekly Order</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedRestaurant(null)}
+                    className="px-4 py-2 text-orange-600 border border-orange-600 rounded-lg hover:bg-orange-50 transition-colors"
+                  >
+                    Change Restaurant
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Enhanced Filters Section */}
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg">
+              <div className="flex flex-wrap gap-4 items-center justify-between mb-6">
                 <div className="flex items-center space-x-2 flex-grow max-w-md">
                   <input
                     type="text"
                     placeholder="Search dishes or restaurants..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-gray-700/50 border border-orange-100 dark:border-gray-600 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
+                    className="w-full px-4 py-2 rounded-xl bg-white/50 border border-orange-100 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
                   />
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  {['glutenFree', 'lactoseFree', 'vegan', 'snacks', 'chicken', 'beef', 'pork', 'american', 'asian', 'drinks', 'european', 'middleEastern', 'mediterranean'].map(filter => (
-                    <motion.button
-                      key={filter}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => toggleFilter(filter)}
-                      className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
-                        filters[filter]
-                          ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
-                          : 'bg-white/50 dark:bg-gray-700/50 hover:bg-orange-50 dark:hover:bg-gray-600/50'
-                      }`}
-                    >
-                      {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                    </motion.button>
-                  ))}
-                </div>
               </div>
-            </div>
 
-            {/* Recommended Section */}
-            {/* {recommendedItems.length > 0 && (
+              {/* Filter Categories */}
               <div className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                    Recommended For You
-                  </h2>
-                  <div className="h-0.5 flex-grow bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-full"></div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {recommendedItems.map(item => (
-                    <FoodCard 
-                      key={item.id}
-                      food={item}
-                      onAddToCart={handleAddToCart}
-                      compact
-                    />
-                  ))}
-                </div>
-              </div>
-            )} */}
-
-            {/* Main Menu Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                    Available Menu
-                  </h2>
-                  <div className="h-0.5 w-24 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-full"></div>
-                </div>
-              </div>
-              
-              {/* Categorize items by restaurant */}
-              {Object.entries(foodItems.reduce((acc, item) => {
-                const restaurant = item.restaurant;
-                if (!acc[restaurant]) acc[restaurant] = [];
-                acc[restaurant].push(item);
-                return acc;
-              }, {})).map(([restaurant, items]) => (
-                <div key={restaurant} className="space-y-4">
-                  <h3 className="text-xl font-semibold">{restaurant}</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {items.map(food => (
-                      <motion.div
-                        key={food.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                        onClick={() => handleMenuItemClick(food)}
+                {/* Dietary Preferences */}
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+                    <span className="mr-2">🥗</span>
+                    Dietary Preferences
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {['glutenFree', 'lactoseFree', 'vegan', 'vegetarian', 'organic', 'keto', 'lowCarb'].map(filter => (
+                      <motion.button
+                        key={filter}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => toggleFilter(filter)}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                          filters[filter]
+                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                            : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                        }`}
                       >
-                        <FoodCard 
-                          food={food}
-                          onAddToCart={handleAddToCart}
-                        />
-                      </motion.div>
+                        {filter.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      </motion.button>
                     ))}
                   </div>
                 </div>
-              ))}
+
+                {/* Food Categories */}
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+                    <span className="mr-2">🍽️</span>
+                    Food Categories
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {['snacks', 'appetizers', 'mainCourse', 'desserts', 'beverages', 'salads', 'soups'].map(filter => (
+                      <motion.button
+                        key={filter}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => toggleFilter(filter)}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                          filters[filter]
+                            ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                            : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                        }`}
+                      >
+                        {filter.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Cuisines */}
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+                    <span className="mr-2">🌍</span>
+                    Cuisines
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {['italian', 'asian', 'american', 'mexican', 'indian', 'mediterranean', 'french', 'thai', 'chinese', 'japanese', 'middle_eastern'].map(filter => (
+                      <motion.button
+                        key={filter}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => toggleFilter(filter)}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                          filters[filter]
+                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                            : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                        }`}
+                      >
+                        {filter.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Price Range */}
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+                    <span className="mr-2">💰</span>
+                    Price Range
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    { [
+                      { key: 'budget', label: 'Budget (Under 100 DKK)' },
+                      { key: 'midRange', label: 'Mid-range (100-200 DKK)' },
+                      { key: 'premium', label: 'Premium (Above 200 DKK)' }
+                    ].map(filter => (
+                      <motion.button
+                        key={filter.key}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => toggleFilter(filter.key)}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                          filters[filter.key]
+                            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg'
+                            : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                        }`}
+                      >
+                        {filter.label}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Clear All Filters */}
+              {Object.values(filters).some(f => f) && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={() => setFilters(prev => Object.keys(prev).reduce((acc, key) => ({ ...acc, [key]: false }), {}))}
+                    className="text-sm text-red-600 hover:text-red-700 font-medium"
+                  >
+                    Clear all filters
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Menu Items */}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-2xl font-bold text-gray-900">
+                  Menu ({filteredFoodItems.length} items)
+                </h3>
+                <div className="text-sm text-gray-600">
+                  {Object.values(filters).some(f => f) && `Filtered from ${foodItems.length} items`}
+                </div>
+              </div>
+              
+              {filteredFoodItems.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">🍽️</div>
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No items found</h3>
+                  <p className="text-gray-500">Try adjusting your filters or search query</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredFoodItems.map(food => (
+                    <FoodCard 
+                      key={food.id}
+                      food={food}
+                      onAddToCart={handleAddToCart}
+                      onClick={(item) => setSelectedMenuItem(item)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         )}
       </motion.div>
       
+      {/* Modals */}
+      <FoodItemModal
+        item={selectedMenuItem}
+        isOpen={!!selectedMenuItem}
+        onClose={() => setSelectedMenuItem(null)}
+        onAddToCart={handleAddToCart}
+      />
+      
       {showCart && (
         <CartModal 
           cart={cart}
           onClose={() => setShowCart(false)}
-          onUpdateQuantity={(foodId, newQuantity) => {
-            if (newQuantity <= 0) {
-              setCart(cart.filter(item => item.id !== foodId));
-            } else {
-              setCart(cart.map(item => 
-                item.id === foodId ? { ...item, quantity: newQuantity } : item
-              ));
-            }
-          }}
-          onRemoveItem={(foodId) => {
-            setCart(cart.filter(item => item.id !== foodId));
-          }}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveItem={handleRemoveItem}
           onProceedToPay={handleProceedToPay}
         />
       )}
@@ -296,7 +560,6 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
           foodItems={foodItems}
           onClose={() => setShowCalendarOrder(false)}
           onAddToCart={handleAddToCart}
-          cart={cart}
           onProceedToPay={handleProceedToPay}
         />
       )}
@@ -307,325 +570,83 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
         isOpen={showSidebar}
         onClose={() => setShowSidebar(false)}
       />
-
-      {/* Menu Item Popup */}
-      {selectedMenuItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Header with Image */}
-            <div className="relative">
-              <img 
-                src={selectedMenuItem.imageUrl} 
-                alt={selectedMenuItem.name}
-                className="w-full h-64 object-cover rounded-t-2xl"
-              />
-              <div className="absolute top-4 right-4">
-                <button
-                  onClick={() => setSelectedMenuItem(null)}
-                  className="p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors backdrop-blur-sm"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="absolute bottom-4 left-4">
-                <div className="flex items-center space-x-2">
-                  {selectedMenuItem.isVegetarian ? (
-                    <div className="w-6 h-6 border-2 border-green-600 rounded-sm flex items-center justify-center bg-white">
-                      <div className="w-3 h-3 bg-green-600 rounded-full"></div>
-                    </div>
-                  ) : (
-                    <div className="w-6 h-6 border-2 border-red-600 rounded-sm flex items-center justify-center bg-white">
-                      <div className="w-3 h-3 bg-red-600 rounded-sm"></div>
-                    </div>
-                  )}
-                  <span className="text-white bg-black/50 px-2 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
-                    ⭐ {selectedMenuItem.rating}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-6 space-y-6">
-              {/* Title and Price */}
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
-                    {selectedMenuItem.name}
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-300 flex items-center">
-                    <svg className="w-4 h-4 mr-1 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
-                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd"></path>
-                    </svg>
-                    {selectedMenuItem.restaurant}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-orange-600">
-                    {selectedMenuItem.price} DKK
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {selectedMenuItem.prepTime} • {selectedMenuItem.calories} cal
-                  </div>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Description</h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {selectedMenuItem.description}
-                </p>
-              </div>
-
-              {/* Ingredients */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Ingredients</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedMenuItem.ingredients?.map((ingredient, index) => (
-                    <span 
-                      key={index}
-                      className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 text-sm rounded-full"
-                    >
-                      {ingredient}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Nutritional Information */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Nutritional Information</h3>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                  {selectedMenuItem.nutritionalInfo && Object.entries(selectedMenuItem.nutritionalInfo).map(([key, value]) => (
-                    <div key={key} className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className="text-sm text-gray-500 dark:text-gray-400 capitalize">{key}</div>
-                      <div className="font-bold text-gray-800 dark:text-white">{value}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Dietary Information & Allergens */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Dietary Information</h3>
-                  <div className="space-y-2">
-                    {selectedMenuItem.isVegetarian && (
-                      <div className="flex items-center text-green-600">
-                        <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                        </svg>
-                        Vegetarian
-                      </div>
-                    )}
-                    {selectedMenuItem.isVegan && (
-                      <div className="flex items-center text-green-600">
-                        <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                        </svg>
-                        Vegan
-                      </div>
-                    )}
-                    {selectedMenuItem.isGlutenFree && (
-                      <div className="flex items-center text-green-600">
-                        <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                        </svg>
-                        Gluten Free
-                      </div>
-                    )}
-                    {selectedMenuItem.isLactoseFree && (
-                      <div className="flex items-center text-green-600">
-                        <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                        </svg>
-                        Lactose Free
-                      </div>
-                    )}
-                    {selectedMenuItem.isOrganic && (
-                      <div className="flex items-center text-green-600">
-                        <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                        </svg>
-                        Organic
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Allergen Information</h3>
-                  <div className="space-y-2">
-                    {selectedMenuItem.allergens?.map((allergen, index) => (
-                      <div key={index} className="flex items-center text-yellow-600">
-                        <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"></path>
-                        </svg>
-                        {allergen}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Add to Cart Button */}
-              <div className="flex gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                <button
-                  onClick={() => setSelectedMenuItem(null)}
-                  className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={() => {
-                    handleAddToCart(selectedMenuItem, 1);
-                    setSelectedMenuItem(null);
-                  }}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
-                >
-                  Add to Cart • {selectedMenuItem.price} DKK
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-// Helper functions
-const randomImageUrls = [
-  'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=400&h=300&fit=crop'
-];
+// Enhanced food items generator with more variety and properties
+const generateMockFoodItems = (restaurant) => {
+  const foodCategories = {
+    'Bella Italia Ristorante': [
+      { name: 'Margherita Pizza', image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop&auto=format', price: 165, category: 'Main Course', cuisine: ['Italian'] },
+      { name: 'Pasta Carbonara', image: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=400&h=300&fit=crop&auto=format', price: 145, category: 'Main Course', cuisine: ['Italian'] },
+      { name: 'Tiramisu', image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Desserts', cuisine: ['Italian'] },
+      { name: 'Lasagna Bolognese', image: 'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=400&h=300&fit=crop&auto=format', price: 175, category: 'Main Course', cuisine: ['Italian'] },
+      { name: 'Caesar Salad', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Salads', cuisine: ['Italian'] },
+      { name: 'Minestrone Soup', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Soups', cuisine: ['Italian'] },
+      { name: 'Bruschetta', image: 'https://images.unsplash.com/photo-1572441712966-931d1f3fa936?w=400&h=300&fit=crop&auto=format', price: 55, category: 'Appetizers', cuisine: ['Italian'] },
+      { name: 'Italian Wine', image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=300&fit=crop&auto=format', price: 125, category: 'Beverages', cuisine: ['Italian'] }
+    ],
+    'Copenhagen Grill House': [
+      { name: 'Ribeye Steak', image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop&auto=format', price: 285, category: 'Main Course', cuisine: ['American'] },
+      { name: 'BBQ Burger', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop&auto=format', price: 165, category: 'Main Course', cuisine: ['American'] },
+      { name: 'Grilled Salmon', image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop&auto=format', price: 225, category: 'Main Course', cuisine: ['American'] },
+      { name: 'BBQ Ribs', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop&auto=format', price: 245, category: 'Main Course', cuisine: ['American'] },
+      { name: 'Loaded Nachos', image: 'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Appetizers', cuisine: ['American'] },
+      { name: 'Coleslaw', image: 'https://images.unsplash.com/photo-1505576391880-b3f9d713dc4f?w=400&h=300&fit=crop&auto=format', price: 45, category: 'Salads', cuisine: ['American'] },
+      { name: 'Craft Beer', image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=300&fit=crop&auto=format', price: 65, category: 'Beverages', cuisine: ['American'] },
+      { name: 'Chocolate Brownie', image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&h=300&fit=crop&auto=format', price: 75, category: 'Desserts', cuisine: ['American'] }
+    ],
+    'Nordic Fusion Kitchen': [
+      { name: 'Pan-Seared Cod', image: 'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6d3?w=400&h=300&fit=crop&auto=format', price: 235, category: 'Main Course', cuisine: ['Nordic'] },
+      { name: 'Nordic Salad Bowl', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format', price: 145, category: 'Salads', cuisine: ['Nordic'] },
+      { name: 'Reindeer Carpaccio', image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop&auto=format', price: 185, category: 'Appetizers', cuisine: ['Nordic'] },
+      { name: 'Arctic Char', image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&h=300&fit=crop&auto=format', price: 265, category: 'Main Course', cuisine: ['Nordic'] }
+    ]
+  };
 
-const generateMockFoodItems = (location, cluster) => {
-  const restaurants = [
-    { id: 1, name: `${location} Bistro`, rating: 4.5 },
-    { id: 2, name: `${location} Grill`, rating: 4.2 },
-    { id: 3, name: `${location} Delight`, rating: 4.7 },
-  ];
-  
-  const foodNames = [
-    'Margherita Pizza', 'Vegan Burger', 'Chicken Tikka',
-    'Pasta Alfredo', 'Salmon Salad', 'Vegetable Stir Fry',
-    'Cheesecake', 'Chocolate Mousse', 'Falafel Wrap'
-  ];
-
-  const detailedDescriptions = [
-    'Authentic Italian Margherita pizza with fresh mozzarella, San Marzano tomatoes, fresh basil leaves, and extra virgin olive oil on a crispy wood-fired crust. Made with traditional Italian techniques for an authentic taste experience.',
-    'Plant-based burger patty made from black beans, quinoa, and mushrooms, topped with avocado, lettuce, tomato, and vegan mayo on a whole grain bun. Served with sweet potato fries and a side of organic mixed greens.',
-    'Tender chicken pieces marinated in yogurt and aromatic spices including garam masala, turmeric, and cardamom. Grilled to perfection and served with basmati rice, mint chutney, and fresh naan bread.',
-    'Creamy pasta dish featuring fettuccine noodles tossed in a rich Alfredo sauce made with butter, heavy cream, and freshly grated Parmesan cheese. Garnished with black pepper and fresh parsley.',
-    'Fresh Atlantic salmon fillet grilled to perfection, served over a bed of mixed greens, cherry tomatoes, cucumber, red onion, and avocado. Dressed with lemon vinaigrette and topped with toasted seeds.',
-    'Colorful medley of fresh seasonal vegetables including bell peppers, broccoli, snap peas, carrots, and mushrooms stir-fried in sesame oil with garlic, ginger, and soy sauce. Served over jasmine rice.',
-    'Rich and creamy New York style cheesecake with a graham cracker crust, topped with fresh berry compote and a drizzle of vanilla sauce. Made with premium cream cheese and Madagascar vanilla.',
-    'Decadent French chocolate mousse made with Belgian dark chocolate, whipped to airy perfection and topped with fresh whipped cream and dark chocolate shavings. A true indulgence for chocolate lovers.',
-    'Mediterranean-style wrap filled with homemade falafel balls, fresh hummus, tabbouleh, cucumber, tomatoes, and tahini sauce in a warm pita bread. Served with pickled vegetables and yogurt sauce.'
-  ];
-
-  const ingredients = [
-    ['Mozzarella cheese', 'San Marzano tomatoes', 'Fresh basil', 'Pizza dough', 'Olive oil'],
-    ['Black bean patty', 'Avocado', 'Lettuce', 'Tomato', 'Whole grain bun', 'Vegan mayo'],
-    ['Chicken breast', 'Yogurt', 'Garam masala', 'Turmeric', 'Basmati rice', 'Naan bread'],
-    ['Fettuccine pasta', 'Heavy cream', 'Parmesan cheese', 'Butter', 'Black pepper'],
-    ['Atlantic salmon', 'Mixed greens', 'Cherry tomatoes', 'Cucumber', 'Avocado', 'Lemon'],
-    ['Bell peppers', 'Broccoli', 'Snap peas', 'Carrots', 'Mushrooms', 'Sesame oil', 'Jasmine rice'],
-    ['Cream cheese', 'Graham crackers', 'Mixed berries', 'Vanilla extract', 'Sugar'],
-    ['Belgian chocolate', 'Heavy cream', 'Eggs', 'Sugar', 'Vanilla extract'],
-    ['Chickpeas', 'Hummus', 'Cucumber', 'Tomatoes', 'Pita bread', 'Tahini sauce']
+  const defaultItems = [
+    { name: 'Chef Special', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&auto=format', price: 195, category: 'Main Course', cuisine: ['International'] },
+    { name: 'House Salad', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&auto=format', price: 125, category: 'Salads', cuisine: ['International'] },
+    { name: 'Dessert Selection', image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=300&fit=crop&auto=format', price: 95, category: 'Desserts', cuisine: ['International'] },
+    { name: 'Fresh Soup', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop&auto=format', price: 85, category: 'Soups', cuisine: ['International'] }
   ];
 
-  const nutritionalInfo = [
-    { protein: '14g', carbs: '35g', fat: '12g', fiber: '3g', sodium: '850mg' },
-    { protein: '18g', carbs: '45g', fat: '15g', fiber: '12g', sodium: '420mg' },
-    { protein: '28g', carbs: '42g', fat: '8g', fiber: '2g', sodium: '980mg' },
-    { protein: '15g', carbs: '55g', fat: '22g', fiber: '2g', sodium: '750mg' },
-    { protein: '32g', carbs: '12g', fat: '18g', fiber: '8g', sodium: '340mg' },
-    { protein: '8g', carbs: '48g', fat: '6g', fiber: '9g', sodium: '620mg' },
-    { protein: '8g', carbs: '32g', fat: '28g', fiber: '1g', sodium: '280mg' },
-    { protein: '6g', carbs: '24g', fat: '18g', fiber: '3g', sodium: '85mg' },
-    { protein: '12g', carbs: '38g', fat: '14g', fiber: '8g', sodium: '590mg' }
-  ];
+  const items = foodCategories[restaurant.name] || defaultItems;
 
-  return Array.from({ length: 12 }, (_, i) => {
-    const isVeg = Math.random() > 0.5;
-    const isVegan = isVeg && Math.random() > 0.7;
-    const basePrice = Math.floor(Math.random() * (238 - 78 + 1)) + 78;
-    const comboPrice = Math.floor(basePrice * 0.9 * 5);
-    
-    return {
-      id: i + 1,
-      name: foodNames[i % foodNames.length],
-      restaurant: restaurants[i % restaurants.length].name,
-      restaurantId: restaurants[i % restaurants.length].id,
-      rating: restaurants[i % restaurants.length].rating,
-      isVegetarian: isVeg,
-      isVegan: isVegan,
-      isGlutenFree: Math.random() > 0.7,
-      isLactoseFree: Math.random() > 0.6,
-      isOrganic: Math.random() > 0.8,
-      calories: Math.floor(Math.random() * (500 - 150) + 150),
-      prepTime: `${Math.floor(Math.random() * (30 - 10) + 10)} min`,
-      tags: [
-        isVeg ? 'Vegetarian' : 'Non-Vegetarian',
-        isVegan ? 'Vegan' : '',
-        Math.random() > 0.7 ? 'Gluten-Free' : '',
-        Math.random() > 0.7 ? 'Lactose-Free' : '',
-        Math.random() > 0.8 ? 'Snacks' : '',
-        Math.random() > 0.8 ? 'European' : '',
-        Math.random() > 0.9 ? 'Asian' : '',
-      ].filter(Boolean),
-      price: basePrice,
-      comboPrice: comboPrice,
-      comboDescription: `Combo for 5 people (Save ${basePrice * 5 - comboPrice} DKK)`,
-      description: detailedDescriptions[i % detailedDescriptions.length],
-      shortDescription: `Delicious ${foodNames[i % foodNames.length]} made with fresh ingredients and authentic spices.`,
-      ingredients: ingredients[i % ingredients.length],
-      nutritionalInfo: nutritionalInfo[i % nutritionalInfo.length],
-      allergens: Math.random() > 0.5 ? ['Contains gluten', 'Contains dairy'] : ['Nut-free', 'Dairy-free'],
-      imageUrl: randomImageUrls[i % randomImageUrls.length],
-      popularity: Math.floor(Math.random() * 100),
-    };
-  });
-};
-
-const generateRecommendedItems = (allItems, orderHistory) => {
-  if (orderHistory.length === 0) {
-    // If no order history, recommend popular items
-    return [...allItems]
-      .sort((a, b) => b.popularity - a.popularity)
-      .slice(0, 5);
-  }
-  
-  // Get most ordered restaurant IDs
-  const restaurantOrderCount = {};
-  orderHistory.forEach(order => {
-    order.items.forEach(item => {
-      restaurantOrderCount[item.restaurantId] = (restaurantOrderCount[item.restaurantId] || 0) + 1;
-    });
-  });
-  
-  const favoriteRestaurantId = Object.keys(restaurantOrderCount)
-    .reduce((a, b) => restaurantOrderCount[a] > restaurantOrderCount[b] ? a : b);
-  
-  // Get items from favorite restaurant
-  return allItems
-    .filter(item => item.restaurantId.toString() === favoriteRestaurantId)
-    .slice(0, 5);
+  return items.map((item, index) => ({
+    id: index + 1,
+    name: item.name,
+    restaurant: restaurant.name,
+    restaurantId: restaurant.id,
+    rating: (4.2 + Math.random() * 0.6).toFixed(1),
+    isVegetarian: Math.random() > 0.6,
+    isVegan: Math.random() > 0.8,
+    isGlutenFree: Math.random() > 0.7,
+    isLactoseFree: Math.random() > 0.8,
+    isOrganic: Math.random() > 0.9,
+    isKeto: Math.random() > 0.85,
+    isLowCarb: Math.random() > 0.75,
+    calories: Math.floor(Math.random() * (600 - 200) + 200),
+    prepTime: `${Math.floor(Math.random() * (25 - 15) + 15)}-${Math.floor(Math.random() * (35 - 25) + 25)} min`,
+    tags: ['Popular', restaurant.specialties[0]].filter(Boolean),
+    price: item.price,
+    category: item.category,
+    cuisine: item.cuisine,
+    description: `Expertly crafted ${item.name.toLowerCase()} featuring the finest ingredients and traditional cooking methods. A signature dish that represents the authentic flavors of our kitchen.`,
+    ingredients: ['Fresh herbs', 'Premium ingredients', 'Local produce', 'Special spices'],
+    nutritionalInfo: {
+      protein: `${Math.floor(Math.random() * 20 + 10)}g`,
+      carbs: `${Math.floor(Math.random() * 40 + 20)}g`,
+      fat: `${Math.floor(Math.random() * 15 + 5)}g`,
+      fiber: `${Math.floor(Math.random() * 8 + 2)}g`
+    },
+    allergens: Math.random() > 0.5 ? ['Contains gluten', 'Contains dairy'] : ['Gluten-free', 'Dairy-free'],
+    imageUrl: item.image,
+    popularity: Math.floor(Math.random() * 100),
+    comboPrice: Math.random() > 0.7 ? Math.floor(item.price * 4.5) : null,
+    comboDescription: Math.random() > 0.7 ? `Family combo for 5 people (Save ${Math.floor(item.price * 0.5)} DKK)` : null
+  }));
 };
 
 export default RestaurantPage;
