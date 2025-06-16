@@ -276,7 +276,7 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="container mx-auto px-4 py-8"
+        className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-7xl"
       >
         {!selectedCluster ? (
           <motion.div 
@@ -284,10 +284,16 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
             animate={{ opacity: 1 }}
             className="flex flex-col items-center"
           >
-            <h2 className="text-3xl font-bold mb-8 text-gray-900">
-              Select Your Delivery Zone in <span className="text-orange-600">{location}</span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
+            <div className="text-center mb-6 sm:mb-8 px-4">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 text-gray-900 leading-tight">
+                Select Your Delivery Zone in{' '}
+                <span className="text-orange-600 block sm:inline">{location}</span>
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
+                Choose your preferred delivery area to see available restaurants
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-5xl px-4">
               {clusters.map(cluster => (
                 <ClusterCard 
                   key={cluster.id}
@@ -301,18 +307,19 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="space-y-8"
+            className="space-y-6 sm:space-y-8"
           >
-            <div className="text-center">
-              <h2 className="text-3xl font-bold mb-4 text-gray-900">
-                Choose a Restaurant in <span className="text-orange-600">{selectedCluster.name}</span>
+            <div className="text-center px-4">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 text-gray-900 leading-tight">
+                Choose a Restaurant in{' '}
+                <span className="text-orange-600 block sm:inline">{selectedCluster.name}</span>
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
                 Discover amazing restaurants in your area. Fresh food, fast delivery, and great taste guaranteed.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {restaurants.map(restaurant => (
                 <RestaurantCard 
                   key={restaurant.id}
@@ -326,93 +333,187 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="space-y-8"
+            className="space-y-4 sm:space-y-6 lg:space-y-8"
           >
-            {/* Restaurant Header */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <img
-                    src={selectedRestaurant.imageUrl}
-                    alt={selectedRestaurant.name}
-                    className="w-16 h-16 rounded-xl object-cover"
-                  />
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{selectedRestaurant.name}</h2>
-                    <p className="text-gray-600">{selectedRestaurant.address}</p>
-                    <div className="flex items-center space-x-4 mt-1">
-                      <span className="flex items-center text-yellow-500">
-                        <span className="mr-1">★</span>
-                        {selectedRestaurant.rating}
-                      </span>
-                      <span className="text-gray-500">25-35 min</span>
-                      <span className="text-green-600">Free delivery</span>
+            {/* Mobile-Optimized Restaurant Header */}
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+              <div className="p-4 sm:p-6">
+                {/* Mobile Layout */}
+                <div className="block sm:hidden space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <img
+                      src={selectedRestaurant.imageUrl}
+                      alt={selectedRestaurant.name}
+                      className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-lg font-bold text-gray-900 truncate">{selectedRestaurant.name}</h2>
+                      <div className="flex items-center space-x-3 text-sm">
+                        <span className="flex items-center text-yellow-500">
+                          <span className="mr-1">★</span>
+                          {selectedRestaurant.rating}
+                        </span>
+                        <span className="text-gray-500">25-35 min</span>
+                        <span className="text-green-600">Free delivery</span>
+                      </div>
                     </div>
                   </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">{selectedRestaurant.address}</p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                      onClick={() => setShowCalendarOrder(true)}
+                      className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center justify-center space-x-2 text-sm font-medium"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
+                      </svg>
+                      <span>Plan Weekly Order</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedRestaurant(null)}
+                      className="flex-1 px-4 py-2.5 text-orange-600 border border-orange-600 rounded-lg hover:bg-orange-50 transition-colors text-sm font-medium"
+                    >
+                      Change Restaurant
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => setShowCalendarOrder(true)}
-                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-colors flex items-center space-x-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span>Plan Weekly Order</span>
-                  </button>
-                  <button
-                    onClick={() => setSelectedRestaurant(null)}
-                    className="px-4 py-2 text-orange-600 border border-orange-600 rounded-lg hover:bg-orange-50 transition-colors"
-                  >
-                    Change Restaurant
-                  </button>
+
+                {/* Desktop Layout */}
+                <div className="hidden sm:flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <img
+                      src={selectedRestaurant.imageUrl}
+                      alt={selectedRestaurant.name}
+                      className="w-16 h-16 rounded-xl object-cover"
+                    />
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">{selectedRestaurant.name}</h2>
+                      <p className="text-gray-600">{selectedRestaurant.address}</p>
+                      <div className="flex items-center space-x-4 mt-1">
+                        <span className="flex items-center text-yellow-500">
+                          <span className="mr-1">★</span>
+                          {selectedRestaurant.rating}
+                        </span>
+                        <span className="text-gray-500">25-35 min</span>
+                        <span className="text-green-600">Free delivery</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => setShowCalendarOrder(true)}
+                      className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-colors flex items-center space-x-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
+                      </svg>
+                      <span>Plan Weekly Order</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedRestaurant(null)}
+                      className="px-4 py-2 text-orange-600 border border-orange-600 rounded-lg hover:bg-orange-50 transition-colors"
+                    >
+                      Change Restaurant
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Enhanced Filters Section with Toggle */}
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-100">
-              {/* Search and Filter Toggle Header */}
-              <div className="flex flex-wrap gap-4 items-center justify-between p-6 border-b border-gray-200">
-                <div className="flex items-center space-x-2 flex-grow max-w-md">
-                  <input
-                    type="text"
-                    placeholder="Search dishes or restaurants..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-white/50 border border-orange-100 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
-                  />
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm text-gray-600">
-                    {filteredFoodItems.length} of {foodItems.length} items
-                  </span>
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
-                      showFilters 
-                        ? 'bg-orange-600 text-white shadow-lg'
-                        : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+            {/* Mobile-First Enhanced Filters Section */}
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl sm:rounded-2xl shadow-lg border border-gray-100">
+              {/* Mobile-Optimized Search and Filter Header */}
+              <div className="p-4 sm:p-6 border-b border-gray-200">
+                {/* Mobile Layout */}
+                <div className="block sm:hidden space-y-3">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search dishes..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/70 border border-orange-100 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300 text-sm"
+                    />
+                    <svg className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
-                    <svg 
-                      className={`w-4 h-4 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">
+                      {filteredFoodItems.length} of {foodItems.length} items
+                    </span>
+                    <button
+                      onClick={() => setShowFilters(!showFilters)}
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 text-sm ${
+                        showFilters 
+                          ? 'bg-orange-600 text-white shadow-lg'
+                          : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                      }`}
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                      </svg>
+                      <span>Filters</span>
+                      <svg 
+                        className={`w-4 h-4 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Desktop Layout */}
+                <div className="hidden sm:flex flex-wrap gap-4 items-center justify-between">
+                  <div className="flex items-center space-x-2 flex-grow max-w-md">
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        placeholder="Search dishes or restaurants..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 rounded-xl bg-white/50 border border-orange-100 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all duration-300"
+                      />
+                      <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <span className="text-sm text-gray-600">
+                      {filteredFoodItems.length} of {foodItems.length} items
+                    </span>
+                    <button
+                      onClick={() => setShowFilters(!showFilters)}
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                        showFilters 
+                          ? 'bg-orange-600 text-white shadow-lg'
+                          : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                      </svg>
+                      <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
+                      <svg 
+                        className={`w-4 h-4 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Collapsible Filter Categories */}
+              {/* Mobile-Optimized Collapsible Filter Categories */}
               <AnimatePresence>
                 {showFilters && (
                   <motion.div
@@ -422,10 +523,10 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    <div className="p-6 space-y-6">
+                    <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
                       {/* Dietary Preferences */}
                       <div>
-                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center text-sm sm:text-base">
                           <span className="mr-2">🥗</span>
                           Dietary Preferences
                         </h4>
@@ -436,10 +537,10 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => toggleFilter(filter)}
-                              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                              className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
                                 filters[filter]
                                   ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                                  : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                                  : 'bg-white/70 hover:bg-gray-100 text-gray-700 border border-gray-200'
                               }`}
                             >
                               {filter.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
@@ -450,7 +551,7 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
 
                       {/* Food Categories */}
                       <div>
-                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center text-sm sm:text-base">
                           <span className="mr-2">🍽️</span>
                           Food Categories
                         </h4>
@@ -461,10 +562,10 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => toggleFilter(filter)}
-                              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                              className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
                                 filters[filter]
                                   ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
-                                  : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                                  : 'bg-white/70 hover:bg-gray-100 text-gray-700 border border-gray-200'
                               }`}
                             >
                               {filter.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
@@ -475,7 +576,7 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
 
                       {/* Cuisines */}
                       <div>
-                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center text-sm sm:text-base">
                           <span className="mr-2">🌍</span>
                           Cuisines
                         </h4>
@@ -486,10 +587,10 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => toggleFilter(filter)}
-                              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                              className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
                                 filters[filter]
                                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                                  : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                                  : 'bg-white/70 hover:bg-gray-100 text-gray-700 border border-gray-200'
                               }`}
                             >
                               {filter.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
@@ -500,7 +601,7 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
 
                       {/* Price Range */}
                       <div>
-                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center text-sm sm:text-base">
                           <span className="mr-2">💰</span>
                           Price Range
                         </h4>
@@ -515,10 +616,10 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => toggleFilter(filter.key)}
-                              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                              className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
                                 filters[filter.key]
                                   ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg'
-                                  : 'bg-white/50 hover:bg-gray-100 text-gray-700 border border-gray-200'
+                                  : 'bg-white/70 hover:bg-gray-100 text-gray-700 border border-gray-200'
                               }`}
                             >
                               {filter.label}
@@ -532,7 +633,7 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
                         <div className="pt-4 border-t border-gray-200">
                           <button
                             onClick={() => setFilters(prev => Object.keys(prev).reduce((acc, key) => ({ ...acc, [key]: false }), {}))}
-                            className="text-sm text-red-600 hover:text-red-700 font-medium flex items-center space-x-1 hover:bg-red-50 px-2 py-1 rounded transition-colors"
+                            className="text-xs sm:text-sm text-red-600 hover:text-red-700 font-medium flex items-center space-x-1 hover:bg-red-50 px-2 py-1 rounded transition-colors"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -547,25 +648,27 @@ const RestaurantPage = ({ location, cluster: initialCluster, setCluster, cart, s
               </AnimatePresence>
             </div>
 
-            {/* Menu Items */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-gray-900">
+            {/* Mobile-Optimized Menu Items */}
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-1">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                   Menu ({filteredFoodItems.length} items)
                 </h3>
-                <div className="text-sm text-gray-600">
-                  {Object.values(filters).some(f => f) && `Filtered from ${foodItems.length} items`}
-                </div>
+                {Object.values(filters).some(f => f) && (
+                  <div className="text-xs sm:text-sm text-gray-600">
+                    Filtered from {foodItems.length} items
+                  </div>
+                )}
               </div>
               
               {filteredFoodItems.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🍽️</div>
-                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No items found</h3>
-                  <p className="text-gray-500">Try adjusting your filters or search query</p>
+                <div className="text-center py-12 px-4">
+                  <div className="text-4xl sm:text-6xl mb-4">🍽️</div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">No items found</h3>
+                  <p className="text-sm sm:text-base text-gray-500">Try adjusting your filters or search query</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                   {filteredFoodItems.map(food => (
                     <FoodCard 
                       key={food.id}
